@@ -14,6 +14,7 @@ import (
 type runtime struct {
 	debugging   bool
 	debugWriter io.Writer
+	excall      func(Test)
 }
 
 var sRuntime runtime
@@ -27,6 +28,10 @@ func init() {
 
 func Bootstrap() (err error) {
 	return err
+}
+
+func ExpectedCallback(f func(Test)) {
+	sRuntime.excall = f
 }
 
 func debugPrint(s string, args ...interface{}) {

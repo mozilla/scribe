@@ -20,6 +20,8 @@ type Test struct {
 	Regexp      Regexp      `json:"regexp"`
 	If          []string    `json:"if"`
 
+	Expected bool `json:"expectedresult"`
+
 	evaluated bool
 
 	Err            error
@@ -163,6 +165,14 @@ func (t *Test) runTest(d *Document) error {
 		if !dt.MasterResult {
 			t.MasterResult = false
 			break
+		}
+	}
+
+	// See if there is a test expected result handler installed, if so
+	// validate it and call the handler if required.
+	if sRuntime.excall != nil {
+		if t.MasterResult != t.Expected {
+			sRuntime.excall(*t)
 		}
 	}
 

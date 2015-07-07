@@ -48,15 +48,25 @@ func showTextResults(doc scribe.Document) {
 	}
 }
 
+func failExit(t scribe.Test) {
+	fmt.Fprintf(os.Stdout, "error: test result for \"%v\" was unexpected, exiting\n", t.Name)
+	os.Exit(2)
+}
+
 func main() {
+	var (
+		docpath      string
+		expectedExit bool
+	)
+
 	err := scribe.Bootstrap()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
 
-	var docpath string
 	flag.BoolVar(&flagDebug, "d", false, "enable debugging")
+	flag.BoolVar(&expectedExit, "e", false, "exit if result is unexpected")
 	flag.StringVar(&docpath, "f", "", "path to document")
 	flag.Parse()
 
@@ -79,6 +89,14 @@ func main() {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
+	}
+
+	// In expectedExit mode, set a callback in the scribe module that will
+	// be called immediately during analysis if a test result does not
+	// match the boolean expectedresult parameter in the test. The will
+	// result in the tool exiting with return code 2.
+	if expectedExit {
+		scribe.ExpectedCallback(failExit)
 	}
 
 	err = scribe.AnalyzeDocument(doc)
