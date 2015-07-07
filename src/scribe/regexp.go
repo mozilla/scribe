@@ -21,8 +21,8 @@ func (r *Regexp) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error
 	if err != nil {
 		return
 	}
+	ret.Criteria = c
 	if re.MatchString(c.TestValue) {
-		ret.Criteria = c
 		ret.Result = true
 	}
 	return

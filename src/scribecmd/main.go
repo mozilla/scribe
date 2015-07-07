@@ -19,6 +19,15 @@ func showTextResults(doc scribe.Document) {
 	for _, x := range doc.Tests {
 		res, err := x.GetResults()
 		fmt.Fprintf(os.Stdout, "result %v \"%v\"\n", x.Identifier, x.Name)
+		if x.MasterResult {
+			fmt.Fprintf(os.Stdout, "\tmaster result: true\n")
+		} else {
+			fmt.Fprintf(os.Stdout, "\tmaster result: false")
+			if x.HasTrueResults {
+				fmt.Fprintf(os.Stdout, ", has true results, failure caused by dependency failure")
+			}
+			fmt.Fprintf(os.Stdout, "\n")
+		}
 		if err != nil {
 			fmt.Fprintf(os.Stdout, "\t[error] error: %v\n", err)
 		} else {

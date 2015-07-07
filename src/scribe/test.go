@@ -22,8 +22,10 @@ type Test struct {
 
 	evaluated bool
 
-	Err     error
-	Results []EvaluationResult
+	Err            error
+	MasterResult   bool
+	HasTrueResults bool
+	Results        []EvaluationResult
 }
 
 // The result of evaluation of a test. There can be more then one
@@ -106,12 +108,12 @@ func (t *Test) runTest(d *Document) error {
 	// First, see if this test has any dependencies. If so, run those
 	// before we execute this one.
 	for _, x := range t.If {
-		t, err := d.getTest(x)
+		dt, err := d.getTest(x)
 		if err != nil {
 			t.Err = err
 			return t.Err
 		}
-		err = t.runTest(d)
+		err = dt.runTest(d)
 		if err != nil {
 			t.Err = fmt.Errorf("a test dependency failed")
 			return t.Err
@@ -135,6 +137,33 @@ func (t *Test) runTest(d *Document) error {
 			return t.Err
 		}
 		t.Results = append(t.Results, res)
+	}
+
+	// Set the master result for the test. If any of the dependent tests
+	// are false from a master result perspective, this one is also false.
+	// If at least one result for this test is true, the master result for
+	// the test is true.
+	t.HasTrueResults = false
+	for _, x := range t.Results {
+		if x.Result {
+			t.HasTrueResults = true
+		}
+	}
+	t.MasterResult = false
+	if t.HasTrueResults {
+		t.MasterResult = true
+	}
+	for _, x := range t.If {
+		dt, err := d.getTest(x)
+		if err != nil {
+			t.Err = err
+			t.MasterResult = false
+			return t.Err
+		}
+		if !dt.MasterResult {
+			t.MasterResult = false
+			break
+		}
 	}
 
 	return nil
