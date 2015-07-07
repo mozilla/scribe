@@ -90,7 +90,7 @@ func evrExtract(s string) EVR {
 		ret.release = ""
 	}
 
-	debugPrint("[evrExtract] epoch=%v, version=%v, revision=%v\n", ret.epoch, ret.version, ret.release)
+	debugPrint("evrExtract(): epoch=%v, version=%v, revision=%v\n", ret.epoch, ret.version, ret.release)
 	return ret
 }
 
@@ -220,7 +220,7 @@ func evrRpmCompare(actual EVR, check EVR) int {
 }
 
 func evrCompare(op int, actual string, check string) bool {
-	debugPrint("[evrCompare] %v %v %v\n", actual, evrOperationStr(op), check)
+	debugPrint("evrCompare(): %v %v %v\n", actual, evrOperationStr(op), check)
 
 	evract := evrExtract(actual)
 	evrchk := evrExtract(check)
