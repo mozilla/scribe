@@ -40,4 +40,5 @@ func (p *Package) prepare() error {
 }
 
 func (p *Package) expandVariables(v []Variable) {
+	p.Name = variableExpansion(v, p.Name)
 }
