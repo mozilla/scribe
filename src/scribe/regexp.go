@@ -15,7 +15,7 @@ type Regexp struct {
 }
 
 func (r *Regexp) evaluate(c evaluationCriteria) (ret evaluationResult) {
-	debugPrint("evaluate(): regexp \"%v\", %v \"%v\"\n", r.Value, c.Identifier, c.TestValue)
+	debugPrint("evaluate(): regexp %v \"%v\", \"%v\"\n", c.Identifier, c.TestValue, r.Value)
 	re, err := regexp.Compile(r.Value)
 	if err != nil {
 		return

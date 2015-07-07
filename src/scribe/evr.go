@@ -12,7 +12,7 @@ type EVRTest struct {
 }
 
 func (e *EVRTest) evaluate(c evaluationCriteria) (ret evaluationResult) {
-	debugPrint("evaluate(): evr %v \"%v\"\n", e.Operation, e.Value)
+	debugPrint("evaluate(): evr %v \"%v\", %v \"%v\"\n", c.Identifier, c.TestValue, e.Operation, e.Value)
 	evrop := evrLookupOperation(e.Operation)
 	if evrop == EVROP_UNKNOWN {
 		return
