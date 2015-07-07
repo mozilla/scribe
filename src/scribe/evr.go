@@ -15,16 +15,16 @@ type EVRTest struct {
 	Value     string `json:"value"`
 }
 
-func (e *EVRTest) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {
+func (e *EVRTest) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
 	debugPrint("evaluate(): evr %v \"%v\", %v \"%v\"\n", c.Identifier, c.TestValue, e.Operation, e.Value)
 	evrop := evrLookupOperation(e.Operation)
 	if evrop == EVROP_UNKNOWN {
 		return ret, fmt.Errorf("invalid evr operation \"%v\"", e.Operation)
 	}
+	ret.Criteria = c
 	if evrCompare(evrop, c.TestValue, e.Value) {
 		debugPrint("evaluate(): evr comparison operation was true\n")
-		ret.result = true
-		ret.criteria = c
+		ret.Result = true
 	}
 	return
 }

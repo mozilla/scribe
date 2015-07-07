@@ -16,9 +16,9 @@ type PackageInfo struct {
 	Version string
 }
 
-func (p *Package) getCriteria() (ret []evaluationCriteria) {
+func (p *Package) getCriteria() (ret []EvaluationCriteria) {
 	for _, x := range p.pkgInfo {
-		n := evaluationCriteria{}
+		n := EvaluationCriteria{}
 		n.Identifier = x.Name
 		n.TestValue = x.Version
 		ret = append(ret, n)

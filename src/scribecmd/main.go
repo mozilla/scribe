@@ -15,6 +15,30 @@ import (
 
 var flagDebug bool
 
+func showTextResults(doc scribe.Document) {
+	for _, x := range doc.Tests {
+		res, err := x.GetResults()
+		fmt.Fprintf(os.Stdout, "result %v \"%v\"\n", x.Identifier, x.Name)
+		if err != nil {
+			fmt.Fprintf(os.Stdout, "\t[error] error: %v\n", err)
+		} else {
+			if len(res) == 0 {
+				fmt.Fprintf(os.Stdout, "\t[false] no candidates found\n")
+				continue
+			}
+			for _, y := range res {
+				if y.Result {
+					fmt.Fprintf(os.Stdout, "\t[true]")
+				} else {
+					fmt.Fprintf(os.Stdout, "\t[false]")
+				}
+				fmt.Fprintf(os.Stdout, " identifier: \"%v\"", y.Criteria.Identifier)
+				fmt.Fprintf(os.Stdout, "\n")
+			}
+		}
+	}
+}
+
 func main() {
 	err := scribe.Bootstrap()
 	if err != nil {
@@ -53,6 +77,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
 	}
+
+	showTextResults(doc)
 
 	os.Exit(0)
 }

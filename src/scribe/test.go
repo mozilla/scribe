@@ -21,32 +21,40 @@ type Test struct {
 	If          []string    `json:"if"`
 
 	evaluated bool
-	err       error
-	results   []evaluationResult
+
+	Err     error
+	Results []EvaluationResult
 }
 
 // The result of evaluation of a test. There can be more then one
-// evaluationResult present in the results of a test, if the source
+// EvaluationResult present in the results of a test, if the source
 // information returned more than one matching object.
-type evaluationResult struct {
-	criteria evaluationCriteria
-	result   bool
+type EvaluationResult struct {
+	Criteria EvaluationCriteria
+	Result   bool
 }
 
 // Generic criteria for an evaluation. A source object should always support
 // conversion from the specific type to a set of evaluation criteria.
-type evaluationCriteria struct {
+type EvaluationCriteria struct {
 	Identifier string
 	TestValue  string
 }
 
 type genericSource interface {
 	prepare() error
-	getCriteria() []evaluationCriteria
+	getCriteria() []EvaluationCriteria
 }
 
 type genericEvaluator interface {
-	evaluate(evaluationCriteria) (evaluationResult, error)
+	evaluate(EvaluationCriteria) (EvaluationResult, error)
+}
+
+func (t *Test) GetResults() ([]EvaluationResult, error) {
+	if t.Err != nil {
+		return nil, t.Err
+	}
+	return t.Results, nil
 }
 
 func (t *Test) getEvaluationInterface() genericEvaluator {
@@ -55,7 +63,7 @@ func (t *Test) getEvaluationInterface() genericEvaluator {
 	} else if t.Regexp.Value != "" {
 		return &t.Regexp
 	}
-	return nil
+	return &NOOP{}
 }
 
 func (t *Test) getSourceInterface() genericSource {
@@ -70,12 +78,12 @@ func (t *Test) getSourceInterface() genericSource {
 func (t *Test) prepare() error {
 	p := t.getSourceInterface()
 	if p == nil {
-		t.err = fmt.Errorf("source has no valid interface")
-		return t.err
+		t.Err = fmt.Errorf("source has no valid interface")
+		return t.Err
 	}
 	err := p.prepare()
 	if err != nil {
-		t.err = err
+		t.Err = err
 		return err
 	}
 	return nil
@@ -87,8 +95,8 @@ func (t *Test) runTest(d *Document) error {
 	}
 
 	// If this test has failed at some point, return the error.
-	if t.err != nil {
-		return t.err
+	if t.Err != nil {
+		return t.Err
 	}
 
 	debugPrint("runTest(): running \"%v\"\n", t.Name)
@@ -98,33 +106,33 @@ func (t *Test) runTest(d *Document) error {
 	for _, x := range t.If {
 		t, err := d.getTest(x)
 		if err != nil {
-			t.err = err
-			return t.err
+			t.Err = err
+			return t.Err
 		}
 		err = t.runTest(d)
 		if err != nil {
-			t.err = fmt.Errorf("a test dependency failed")
-			return t.err
+			t.Err = fmt.Errorf("a test dependency failed")
+			return t.Err
 		}
 	}
 
 	ev := t.getEvaluationInterface()
 	if ev == nil {
-		t.err = fmt.Errorf("test has no valid evaluation interface")
-		return t.err
+		t.Err = fmt.Errorf("test has no valid evaluation interface")
+		return t.Err
 	}
 	si := t.getSourceInterface()
 	if si == nil {
-		t.err = fmt.Errorf("test has no valid source interface")
-		return t.err
+		t.Err = fmt.Errorf("test has no valid source interface")
+		return t.Err
 	}
 	for _, x := range si.getCriteria() {
 		res, err := ev.evaluate(x)
 		if err != nil {
-			t.err = err
-			return t.err
+			t.Err = err
+			return t.Err
 		}
-		t.results = append(t.results, res)
+		t.Results = append(t.Results, res)
 	}
 
 	return nil

@@ -29,10 +29,10 @@ type ContentMatch struct {
 	Matches []string
 }
 
-func (f *FileContent) getCriteria() (ret []evaluationCriteria) {
+func (f *FileContent) getCriteria() (ret []EvaluationCriteria) {
 	for _, x := range f.Matches {
 		for _, y := range x.Matches {
-			n := evaluationCriteria{}
+			n := EvaluationCriteria{}
 			n.Identifier = x.Path
 			n.TestValue = y
 			ret = append(ret, n)

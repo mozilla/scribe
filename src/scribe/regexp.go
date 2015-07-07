@@ -14,7 +14,7 @@ type Regexp struct {
 	Value string `json:"value"`
 }
 
-func (r *Regexp) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {
+func (r *Regexp) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
 	var re *regexp.Regexp
 	debugPrint("evaluate(): regexp %v \"%v\", \"%v\"\n", c.Identifier, c.TestValue, r.Value)
 	re, err = regexp.Compile(r.Value)
@@ -22,8 +22,8 @@ func (r *Regexp) evaluate(c evaluationCriteria) (ret evaluationResult, err error
 		return
 	}
 	if re.MatchString(c.TestValue) {
-		ret.criteria = c
-		ret.result = true
+		ret.Criteria = c
+		ret.Result = true
 	}
 	return
 }
