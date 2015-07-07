@@ -38,3 +38,6 @@ func (p *Package) prepare() error {
 	}
 	return nil
 }
+
+func (p *Package) expandVariables(v []Variable) {
+}

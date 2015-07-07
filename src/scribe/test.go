@@ -44,6 +44,7 @@ type EvaluationCriteria struct {
 type genericSource interface {
 	prepare() error
 	getCriteria() []EvaluationCriteria
+	expandVariables([]Variable)
 }
 
 type genericEvaluator interface {
@@ -75,12 +76,13 @@ func (t *Test) getSourceInterface() genericSource {
 	return nil
 }
 
-func (t *Test) prepare() error {
+func (t *Test) prepare(v []Variable) error {
 	p := t.getSourceInterface()
 	if p == nil {
 		t.Err = fmt.Errorf("source has no valid interface")
 		return t.Err
 	}
+	p.expandVariables(v)
 	err := p.prepare()
 	if err != nil {
 		t.Err = err

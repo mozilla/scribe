@@ -26,6 +26,7 @@ func LoadDocument(r io.Reader) (Document, error) {
 	}
 
 	debugPrint("new document has %v test(s)\n", len(ret.Tests))
+	debugPrint("new document has %v variable(s)\n", len(ret.Variables))
 
 	return ret, nil
 }

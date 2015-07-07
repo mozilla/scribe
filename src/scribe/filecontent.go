@@ -29,6 +29,11 @@ type ContentMatch struct {
 	Matches []string
 }
 
+func (f *FileContent) expandVariables(v []Variable) {
+	f.Path = variableExpansion(v, f.Path)
+	f.File = variableExpansion(v, f.File)
+}
+
 func (f *FileContent) getCriteria() (ret []EvaluationCriteria) {
 	for _, x := range f.Matches {
 		for _, y := range x.Matches {

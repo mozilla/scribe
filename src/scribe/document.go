@@ -13,12 +13,13 @@ import (
 // Describes a scribe document for interpretation. This structure represents
 // the root of a description for analysis.
 type Document struct {
-	Tests []Test `json:"tests"`
+	Variables []Variable `json:"variables"`
+	Tests     []Test     `json:"tests"`
 }
 
 func (d *Document) runTests() error {
 	for i := range d.Tests {
-		d.Tests[i].prepare()
+		d.Tests[i].prepare(d.Variables)
 	}
 	for i := range d.Tests {
 		d.Tests[i].runTest(d)
