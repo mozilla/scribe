@@ -116,6 +116,17 @@
 			"operation": "<",
 			"value": "0.4z"
 		}
+	},
+
+	{
+		"name": "anyfile0",
+		"identifier": "test6",
+		"expectedresult": true,
+		"filecontent": {
+			"path": "${root}/data",
+			"file": ".*",
+			"expression": "(.*)"
+		}
 	}
 		
 	]
