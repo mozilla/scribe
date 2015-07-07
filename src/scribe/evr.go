@@ -6,16 +6,20 @@
 // - Aaron Meihm ameihm@mozilla.com
 package scribe
 
+import (
+	"fmt"
+)
+
 type EVRTest struct {
 	Operation string `json:"operation"`
 	Value     string `json:"value"`
 }
 
-func (e *EVRTest) evaluate(c evaluationCriteria) (ret evaluationResult) {
+func (e *EVRTest) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {
 	debugPrint("evaluate(): evr %v \"%v\", %v \"%v\"\n", c.Identifier, c.TestValue, e.Operation, e.Value)
 	evrop := evrLookupOperation(e.Operation)
 	if evrop == EVROP_UNKNOWN {
-		return
+		return ret, fmt.Errorf("invalid evr operation \"%v\"", e.Operation)
 	}
 	if evrCompare(evrop, c.TestValue, e.Value) {
 		debugPrint("evaluate(): evr comparison operation was true\n")

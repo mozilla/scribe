@@ -46,7 +46,7 @@ type genericSource interface {
 }
 
 type genericEvaluator interface {
-	evaluate(evaluationCriteria) evaluationResult
+	evaluate(evaluationCriteria) (evaluationResult, error)
 }
 
 func (t *Test) getEvaluationInterface() genericEvaluator {
@@ -119,7 +119,12 @@ func (t *Test) runTest(d *Document) error {
 		return t.err
 	}
 	for _, x := range si.getCriteria() {
-		ev.evaluate(x)
+		res, err := ev.evaluate(x)
+		if err != nil {
+			t.err = err
+			return t.err
+		}
+		t.results = append(t.results, res)
 	}
 
 	return nil
