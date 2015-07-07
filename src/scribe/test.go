@@ -12,12 +12,40 @@ type Test struct {
 	Aliases     []string    `json:"aliases"`
 	Package     Package     `json:"package"`
 	FileContent FileContent `json:"filecontent"`
-	EVR         EVR         `json:"evr"`
+	EVR         EVRTest     `json:"evr"`
 	Regexp      Regexp      `json:"regexp"`
+	If          []string    `json:"if"`
+
+	evaluated bool
+	results   []evaluationResult
+}
+
+type evaluationResult struct {
+	criteria evaluationCriteria
+	result   bool
+}
+
+type evaluationCriteria struct {
+	Identifier string
+	TestValue  string
 }
 
 type genericSource interface {
 	prepare() error
+	getCriteria() []evaluationCriteria
+}
+
+type genericEvaluator interface {
+	evaluate(evaluationCriteria) evaluationResult
+}
+
+func (t *Test) getEvaluationInterface() genericEvaluator {
+	if t.EVR.Value != "" {
+		return &t.EVR
+	} else if t.Regexp.Value != "" {
+		return &t.Regexp
+	}
+	return nil
 }
 
 func (t *Test) getSourceInterface() genericSource {
@@ -35,4 +63,29 @@ func (t *Test) prepare() error {
 		return nil
 	}
 	return p.prepare()
+}
+
+func (t *Test) runTest(d *Document) error {
+	if t.evaluated {
+		return nil
+	}
+
+	debugPrint("runTest(): running \"%v\"\n", t.Name)
+	t.evaluated = true
+	// First, see if this test has any dependencies. If so, run those
+	// before we execute this one.
+	for _, x := range t.If {
+		t, err := d.getTest(x)
+		if err != nil {
+			return err
+		}
+		t.runTest(d)
+	}
+
+	ev := t.getEvaluationInterface()
+	for _, x := range t.getSourceInterface().getCriteria() {
+		ev.evaluate(x)
+	}
+
+	return nil
 }

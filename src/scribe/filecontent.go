@@ -29,6 +29,18 @@ type ContentMatch struct {
 	Matches []string
 }
 
+func (f *FileContent) getCriteria() (ret []evaluationCriteria) {
+	for _, x := range f.Matches {
+		for _, y := range x.Matches {
+			n := evaluationCriteria{}
+			n.Identifier = x.Path
+			n.TestValue = y
+			ret = append(ret, n)
+		}
+	}
+	return ret
+}
+
 func (f *FileContent) prepare() error {
 	debugPrint("prepare(): analyzing file system, path %v, file \"%v\"\n", f.Path, f.File)
 
@@ -56,6 +68,7 @@ func (f *FileContent) prepare() error {
 				debugPrint("prepare(): matched %v, \"%v\"\n", ncm.Path, i[j])
 				ncm.Matches = append(ncm.Matches, i[j])
 			}
+			f.Matches = append(f.Matches, ncm)
 		}
 	}
 

@@ -6,7 +6,21 @@
 // - Aaron Meihm ameihm@mozilla.com
 package scribe
 
-type EVR struct {
+type EVRTest struct {
 	Operation string `json:"operation"`
 	Value     string `json:"value"`
+}
+
+func (e *EVRTest) evaluate(c evaluationCriteria) (ret evaluationResult) {
+	debugPrint("evaluate(): evr %v \"%v\"\n", e.Operation, e.Value)
+	evrop := evrLookupOperation(e.Operation)
+	if evrop == EVROP_UNKNOWN {
+		return
+	}
+	if evrCompare(evrop, c.TestValue, e.Value) {
+		debugPrint("evaluate(): evr comparison operation was true\n")
+		ret.result = true
+		ret.criteria = c
+	}
+	return
 }

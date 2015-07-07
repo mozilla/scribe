@@ -6,6 +6,23 @@
 // - Aaron Meihm ameihm@mozilla.com
 package scribe
 
+import (
+	"regexp"
+)
+
 type Regexp struct {
 	Value string `json:"value"`
+}
+
+func (r *Regexp) evaluate(c evaluationCriteria) (ret evaluationResult) {
+	debugPrint("evaluate(): regexp \"%v\", %v \"%v\"\n", r.Value, c.Identifier, c.TestValue)
+	re, err := regexp.Compile(r.Value)
+	if err != nil {
+		return
+	}
+	if re.MatchString(c.TestValue) {
+		ret.criteria = c
+		ret.result = true
+	}
+	return
 }

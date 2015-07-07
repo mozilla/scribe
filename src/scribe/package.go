@@ -16,6 +16,16 @@ type PackageInfo struct {
 	Version string
 }
 
+func (p *Package) getCriteria() (ret []evaluationCriteria) {
+	for _, x := range p.pkgInfo {
+		n := evaluationCriteria{}
+		n.Identifier = x.Name
+		n.TestValue = x.Version
+		ret = append(ret, n)
+	}
+	return ret
+}
+
 func (p *Package) prepare() error {
 	debugPrint("prepare(): preparing information for package \"%v\"\n", p.Name)
 	p.pkgInfo = make([]PackageInfo, 0)

@@ -6,6 +6,10 @@
 // - Aaron Meihm ameihm@mozilla.com
 package scribe
 
+import (
+	"fmt"
+)
+
 // Describes a scribe document for interpretation. This structure represents
 // the root of a description for analysis.
 type Document struct {
@@ -16,5 +20,23 @@ func (d *Document) runTests() error {
 	for i := range d.Tests {
 		d.Tests[i].prepare()
 	}
+	for i := range d.Tests {
+		d.Tests[i].runTest(d)
+	}
 	return nil
+}
+
+func (d *Document) getTest(name string) (*Test, error) {
+	for i := range d.Tests {
+		if d.Tests[i].Name == name {
+			return &d.Tests[i], nil
+		}
+		for _, x := range d.Tests[i].Aliases {
+			if x == name {
+				return &d.Tests[i], nil
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("unknown test \"%v\"", name)
 }
