@@ -26,6 +26,8 @@ func (d *Document) runTests() error {
 	return nil
 }
 
+// Return a pointer to a test instance. Will locate the test whos name matches
+// name, or has an alias that matches name.
 func (d *Document) getTest(name string) (*Test, error) {
 	for i := range d.Tests {
 		if d.Tests[i].Name == name {

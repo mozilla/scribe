@@ -6,6 +6,10 @@
 // - Aaron Meihm ameihm@mozilla.com
 package scribe
 
+import (
+	"fmt"
+)
+
 type Test struct {
 	Name        string      `json:"name"`
 	Identifier  string      `json:"identifier"`
@@ -17,14 +21,20 @@ type Test struct {
 	If          []string    `json:"if"`
 
 	evaluated bool
+	err       error
 	results   []evaluationResult
 }
 
+// The result of evaluation of a test. There can be more then one
+// evaluationResult present in the results of a test, if the source
+// information returned more than one matching object.
 type evaluationResult struct {
 	criteria evaluationCriteria
 	result   bool
 }
 
+// Generic criteria for an evaluation. A source object should always support
+// conversion from the specific type to a set of evaluation criteria.
 type evaluationCriteria struct {
 	Identifier string
 	TestValue  string
@@ -60,14 +70,25 @@ func (t *Test) getSourceInterface() genericSource {
 func (t *Test) prepare() error {
 	p := t.getSourceInterface()
 	if p == nil {
-		return nil
+		t.err = fmt.Errorf("source has no valid interface")
+		return t.err
 	}
-	return p.prepare()
+	err := p.prepare()
+	if err != nil {
+		t.err = err
+		return err
+	}
+	return nil
 }
 
 func (t *Test) runTest(d *Document) error {
 	if t.evaluated {
 		return nil
+	}
+
+	// If this test has failed at some point, return the error.
+	if t.err != nil {
+		return t.err
 	}
 
 	debugPrint("runTest(): running \"%v\"\n", t.Name)
@@ -77,13 +98,27 @@ func (t *Test) runTest(d *Document) error {
 	for _, x := range t.If {
 		t, err := d.getTest(x)
 		if err != nil {
-			return err
+			t.err = err
+			return t.err
 		}
-		t.runTest(d)
+		err = t.runTest(d)
+		if err != nil {
+			t.err = fmt.Errorf("a test dependency failed")
+			return t.err
+		}
 	}
 
 	ev := t.getEvaluationInterface()
-	for _, x := range t.getSourceInterface().getCriteria() {
+	if ev == nil {
+		t.err = fmt.Errorf("test has no valid evaluation interface")
+		return t.err
+	}
+	si := t.getSourceInterface()
+	if si == nil {
+		t.err = fmt.Errorf("test has no valid source interface")
+		return t.err
+	}
+	for _, x := range si.getCriteria() {
 		ev.evaluate(x)
 	}
 

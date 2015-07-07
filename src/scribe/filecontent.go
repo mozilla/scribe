@@ -52,7 +52,12 @@ func (f *FileContent) prepare() error {
 	}
 
 	for _, x := range sfl.matches {
-		m, _ := FileContentCheck(x, f.Expression)
+		m, err := FileContentCheck(x, f.Expression)
+		// XXX These soft errors during preparation are ignored right
+		// now, but they should probably be tracked somewhere.
+		if err != nil {
+			continue
+		}
 		if m == nil || len(m) == 0 {
 			continue
 		}
@@ -138,7 +143,10 @@ func (s *SimpleFileLocator) locateInner(target string, useRegexp bool, path stri
 	for _, x := range dirents {
 		fname := filepath.Join(spath, x.Name())
 		if x.IsDir() {
-			s.locateInner(target, useRegexp, fname)
+			err = s.locateInner(target, useRegexp, fname)
+			if err != nil {
+				return err
+			}
 		} else if x.Mode().IsRegular() {
 			if !useRegexp {
 				if x.Name() == target {
