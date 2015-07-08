@@ -22,12 +22,21 @@ type Test struct {
 
 	Expected bool `json:"expectedresult"`
 
+	// true if test has been evaluated at least once
 	evaluated bool
 
-	Err            error
-	MasterResult   bool
+	// The last error condition encountered during preparation
+	// or execution.
+	Err error
+
+	// The final result for this test, a rolled up version of the results
+	// of this test for any identified candidates.
+	MasterResult bool
+	// true if any candidates for this test returned a true result.
 	HasTrueResults bool
-	Results        []EvaluationResult
+
+	// Stores a slice of results for this test.
+	Results []EvaluationResult
 }
 
 // The result of evaluation of a test. There can be more then one
@@ -68,6 +77,9 @@ func (t *Test) getEvaluationInterface() genericEvaluator {
 	} else if t.Regexp.Value != "" {
 		return &t.Regexp
 	}
+	// If no evaluation criteria exists, use a no op evaluator
+	// which will always return true for the test if any source objects
+	// are identified.
 	return &NOOP{}
 }
 
