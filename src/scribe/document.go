@@ -18,8 +18,12 @@ type Document struct {
 }
 
 func (d *Document) runTests() error {
+	// Note that prepare() and runTest() will return an error if something
+	// goes wrong, but we don't propagate this back. Errors within a test
+	// are kept localized in that test, and aren't considered to be a fatal
+	// condition.
 	for i := range d.Tests {
-		d.Tests[i].prepare(d.Variables)
+		d.Tests[i].prepare(d)
 	}
 	for i := range d.Tests {
 		d.Tests[i].runTest(d)

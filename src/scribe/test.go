@@ -80,13 +80,13 @@ func (t *Test) getSourceInterface() genericSource {
 	return nil
 }
 
-func (t *Test) prepare(v []Variable) error {
+func (t *Test) prepare(d *Document) error {
 	p := t.getSourceInterface()
 	if p == nil {
 		t.Err = fmt.Errorf("source has no valid interface")
 		return t.Err
 	}
-	p.expandVariables(v)
+	p.expandVariables(d.Variables)
 	err := p.prepare()
 	if err != nil {
 		t.Err = err
