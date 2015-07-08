@@ -1,0 +1,69 @@
+{
+	"variables": [
+	{ "key": "root", "value": "<<t>>" }
+	],
+
+	"tests": [
+	{
+		"name": "filename0",
+		"identifier": "test0",
+		"expectedresult": true,
+		"filename": {
+			"path": "${root}",
+			"file": "(.*)"
+		}
+	},
+
+	{
+		"name": "filename1",
+		"identifier": "test1",
+		"expectedresult": false,
+		"filename": {
+			"path": "${root}",
+			"file": ".*(nosuchfile).*"
+		}
+	},
+
+	{
+		"name": "filename2",
+		"identifier": "test2",
+		"expectedresult": true,
+		"filename": {
+			"path": "${root}",
+			"file": "file-(\\S+).txt"
+		},
+		"evr": {
+			"operation": "<",
+			"value": "1.6.0"
+		}
+	},
+
+	{
+		"name": "filename3",
+		"identifier": "test3",
+		"expectedresult": false,
+		"filename": {
+			"path": "${root}",
+			"file": "file-(\\S+).txt"
+		},
+		"evr": {
+			"operation": "<",
+			"value": "1.1.0"
+		}
+	},
+
+	{
+		"name": "filename4",
+		"identifier": "test4",
+		"expectedresult": true,
+		"filename": {
+			"path": "${root}",
+			"file": "file-(\\S+).txt"
+		},
+		"regexp": {
+			"value": "1.2.3"
+		}
+	}
+
+	]
+}

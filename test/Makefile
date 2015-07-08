@@ -1,13 +1,13 @@
-TESTDIRS = filecontent
+TESTDIRS = filecontent filename
 
 all:
 
 runtests:
 	for x in $(TESTDIRS); do \
-		cd $$x && $(MAKE) runtests; \
+		$(MAKE) -C $$x runtests; \
 	done
 
 clean:
 	for x in $(TESTDIRS); do \
-		cd $$x && $(MAKE) clean; \
+		$(MAKE) -C $$x clean; \
 	done
