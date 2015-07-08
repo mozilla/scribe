@@ -1,4 +1,4 @@
-TESTDIRS = filecontent filename
+TESTDIRS = filecontent filename evrtest
 
 all:
 
