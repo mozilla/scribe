@@ -129,7 +129,7 @@ func (t *Test) runTest(d *Document) error {
 		}
 		err = dt.runTest(d)
 		if err != nil {
-			t.Err = fmt.Errorf("a test dependency failed")
+			t.Err = fmt.Errorf("a test dependency failed (\"%v\")", x)
 			return t.Err
 		}
 	}
