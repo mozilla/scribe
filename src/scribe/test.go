@@ -16,6 +16,7 @@ type Test struct {
 	Aliases     []string    `json:"aliases"`
 	Package     Package     `json:"package"`
 	FileContent FileContent `json:"filecontent"`
+	FileName    FileName    `json:"filename"`
 	EVR         EVRTest     `json:"evr"`
 	Regexp      Regexp      `json:"regexp"`
 	If          []string    `json:"if"`
@@ -88,6 +89,8 @@ func (t *Test) getSourceInterface() genericSource {
 		return &t.Package
 	} else if t.FileContent.Path != "" {
 		return &t.FileContent
+	} else if t.FileName.Path != "" {
+		return &t.FileName
 	}
 	return nil
 }
