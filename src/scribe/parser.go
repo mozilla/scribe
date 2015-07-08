@@ -33,9 +33,5 @@ func LoadDocument(r io.Reader) (Document, error) {
 
 func AnalyzeDocument(d Document) error {
 	debugPrint("analyzing document...\n")
-	err := d.runTests()
-	if err != nil {
-		return err
-	}
-	return nil
+	return d.runTests()
 }
