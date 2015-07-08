@@ -21,12 +21,12 @@ type FileContent struct {
 	File       string `json:"file"`
 	Expression string `json:"expression"`
 
-	Matches []ContentMatch
+	matches []contentMatch
 }
 
-type ContentMatch struct {
-	Path    string
-	Matches []string
+type contentMatch struct {
+	path    string
+	matches []string
 }
 
 func (f *FileContent) expandVariables(v []Variable) {
@@ -35,10 +35,10 @@ func (f *FileContent) expandVariables(v []Variable) {
 }
 
 func (f *FileContent) getCriteria() (ret []EvaluationCriteria) {
-	for _, x := range f.Matches {
-		for _, y := range x.Matches {
+	for _, x := range f.matches {
+		for _, y := range x.matches {
 			n := EvaluationCriteria{}
-			n.Identifier = x.Path
+			n.Identifier = x.path
 			n.TestValue = y
 			ret = append(ret, n)
 		}
@@ -49,15 +49,15 @@ func (f *FileContent) getCriteria() (ret []EvaluationCriteria) {
 func (f *FileContent) prepare() error {
 	debugPrint("prepare(): analyzing file system, path %v, file \"%v\"\n", f.Path, f.File)
 
-	sfl := NewSimpleFileLocator()
+	sfl := newSimpleFileLocator()
 	sfl.root = f.Path
-	err := sfl.Locate(f.File, true)
+	err := sfl.locate(f.File, true)
 	if err != nil {
 		return err
 	}
 
 	for _, x := range sfl.matches {
-		m, err := FileContentCheck(x, f.Expression)
+		m, err := fileContentCheck(x, f.Expression)
 		// XXX These soft errors during preparation are ignored right
 		// now, but they should probably be tracked somewhere.
 		if err != nil {
@@ -71,21 +71,21 @@ func (f *FileContent) prepare() error {
 			if len(i) < 2 {
 				continue
 			}
-			ncm := ContentMatch{}
-			ncm.Path = x
-			ncm.Matches = make([]string, 0)
+			ncm := contentMatch{}
+			ncm.path = x
+			ncm.matches = make([]string, 0)
 			for j := 1; j < len(i); j++ {
-				debugPrint("prepare(): matched %v, \"%v\"\n", ncm.Path, i[j])
-				ncm.Matches = append(ncm.Matches, i[j])
+				debugPrint("prepare(): matched %v, \"%v\"\n", ncm.path, i[j])
+				ncm.matches = append(ncm.matches, i[j])
 			}
-			f.Matches = append(f.Matches, ncm)
+			f.matches = append(f.matches, ncm)
 		}
 	}
 
 	return nil
 }
 
-type SimpleFileLocator struct {
+type simpleFileLocator struct {
 	executed bool
 	root     string
 	curDepth int
@@ -93,7 +93,7 @@ type SimpleFileLocator struct {
 	matches  []string
 }
 
-func NewSimpleFileLocator() (ret SimpleFileLocator) {
+func newSimpleFileLocator() (ret simpleFileLocator) {
 	// XXX This needs to be fixed to work with Windows.
 	ret.root = "/"
 	ret.maxDepth = 10
@@ -101,7 +101,7 @@ func NewSimpleFileLocator() (ret SimpleFileLocator) {
 	return ret
 }
 
-func (s *SimpleFileLocator) Locate(target string, useRegexp bool) error {
+func (s *simpleFileLocator) locate(target string, useRegexp bool) error {
 	if s.executed {
 		return fmt.Errorf("locator has already been executed")
 	}
@@ -109,7 +109,7 @@ func (s *SimpleFileLocator) Locate(target string, useRegexp bool) error {
 	return s.locateInner(target, useRegexp, "")
 }
 
-func (s *SimpleFileLocator) locateInner(target string, useRegexp bool, path string) error {
+func (s *simpleFileLocator) locateInner(target string, useRegexp bool, path string) error {
 	var (
 		spath string
 		re    *regexp.Regexp
@@ -167,7 +167,7 @@ func (s *SimpleFileLocator) locateInner(target string, useRegexp bool, path stri
 	return nil
 }
 
-func FileContentCheck(path string, regex string) ([][]string, error) {
+func fileContentCheck(path string, regex string) ([][]string, error) {
 	re, err := regexp.Compile(regex)
 	if err != nil {
 		return nil, err
