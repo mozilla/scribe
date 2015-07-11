@@ -15,6 +15,7 @@ type runtime struct {
 	debugging   bool
 	debugWriter io.Writer
 	excall      func(Test)
+	testHooks   bool
 }
 
 var sRuntime runtime
@@ -32,6 +33,10 @@ func Bootstrap() (err error) {
 
 func ExpectedCallback(f func(Test)) {
 	sRuntime.excall = f
+}
+
+func TestHooks(f bool) {
+	sRuntime.testHooks = f
 }
 
 func debugPrint(s string, args ...interface{}) {

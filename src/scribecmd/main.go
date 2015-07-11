@@ -57,6 +57,7 @@ func main() {
 	var (
 		docpath      string
 		expectedExit bool
+		testHooks    bool
 	)
 
 	err := scribe.Bootstrap()
@@ -68,6 +69,7 @@ func main() {
 	flag.BoolVar(&flagDebug, "d", false, "enable debugging")
 	flag.BoolVar(&expectedExit, "e", false, "exit if result is unexpected")
 	flag.StringVar(&docpath, "f", "", "path to document")
+	flag.BoolVar(&testHooks, "t", false, "enable test hooks")
 	flag.Parse()
 
 	if flagDebug {
@@ -78,6 +80,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "error: must specify document path\n")
 		os.Exit(1)
 	}
+
+	scribe.TestHooks(testHooks)
 
 	fd, err := os.Open(docpath)
 	if err != nil {

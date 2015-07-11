@@ -44,8 +44,12 @@ func getPackage(name string) (ret pkgmgrResult) {
 func pkgmgrInit() {
 	debugPrint("pkgmgrInit(): initializing package manager...\n")
 	pkgmgrCache = make([]pkgmgrInfo, 0)
-	pkgmgrCache = append(pkgmgrCache, rpmGetPackages()...)
-	pkgmgrCache = append(pkgmgrCache, dpkgGetPackages()...)
+	if sRuntime.testHooks {
+		pkgmgrCache = append(pkgmgrCache, testGetPackages()...)
+	} else {
+		pkgmgrCache = append(pkgmgrCache, rpmGetPackages()...)
+		pkgmgrCache = append(pkgmgrCache, dpkgGetPackages()...)
+	}
 	pkgmgrInitialized = true
 	debugPrint("pkgmgrInit(): initialized with %v packages\n", len(pkgmgrCache))
 }
@@ -99,6 +103,31 @@ func dpkgGetPackages() []pkgmgrInfo {
 		newpkg.name = s[1]
 		newpkg.version = s[2]
 		newpkg.pkgtype = "dpkg"
+		ret = append(ret, newpkg)
+	}
+	return ret
+}
+
+// Functions and data related to package tests
+
+var testPkgTable = []struct {
+	name string
+	ver  string
+}{
+	{"openssl", "1.0.1e"},
+	{"bash", "4.3-11"},
+	{"upstart", "1.13.2"},
+	{"grub-common", "2.02-beta2"},
+	{"libbind", "1:9.9.5.dfsg-4.3"},
+}
+
+func testGetPackages() []pkgmgrInfo {
+	ret := make([]pkgmgrInfo, 0)
+	for _, x := range testPkgTable {
+		newpkg := pkgmgrInfo{}
+		newpkg.name = x.name
+		newpkg.version = x.ver
+		newpkg.pkgtype = "test"
 		ret = append(ret, newpkg)
 	}
 	return ret

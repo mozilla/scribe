@@ -30,6 +30,8 @@ func evrLookupOperation(s string) int {
 	switch s {
 	case "<":
 		return EVROP_LESS_THAN
+	case "=":
+		return EVROP_EQUALS
 	}
 	return EVROP_UNKNOWN
 }
