@@ -19,7 +19,7 @@ func (e *EVRTest) evaluate(c EvaluationCriteria) (ret EvaluationResult, err erro
 	debugPrint("evaluate(): evr %v \"%v\", %v \"%v\"\n", c.Identifier, c.TestValue, e.Operation, e.Value)
 	evrop := evrLookupOperation(e.Operation)
 	if evrop == EVROP_UNKNOWN {
-		return ret, fmt.Errorf("invalid evr operation \"%v\"", e.Operation)
+		return ret, fmt.Errorf("invalid evr operation %v", e.Operation)
 	}
 	ret.Criteria = c
 	if evrCompare(evrop, c.TestValue, e.Value) {
