@@ -14,6 +14,11 @@ import (
 	"unicode"
 )
 
+// This is a go version of the librpm rpmvercmp() function, that compares
+// two version strings to determine which is newer. It has undergone a
+// series of tests but there are likely to be some edge cases and certain
+// scenarios it does not handle.
+
 const (
 	_ = iota
 	EVROP_LESS_THAN
