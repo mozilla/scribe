@@ -73,6 +73,19 @@
 			"value": "2.02-beta3"
 		},
 		"if": [ "package2" ]
+	},
+
+	{
+		"name": "package6",
+		"identifier": "test6",
+		"expectedresult": false,
+		"package": {
+			"name": "openssl"
+		},
+		"evr": {
+			"operation": "badop",
+			"value": "1.0.1e"
+		}
 	}
 	]
 }
