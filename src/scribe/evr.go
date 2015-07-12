@@ -22,9 +22,13 @@ func (e *EVRTest) evaluate(c EvaluationCriteria) (ret EvaluationResult, err erro
 		return ret, fmt.Errorf("invalid evr operation %v", e.Operation)
 	}
 	ret.Criteria = c
-	if evrCompare(evrop, c.TestValue, e.Value) {
+	result, err := evrCompare(evrop, c.TestValue, e.Value)
+	if err != nil {
+		return ret, err
+	}
+	if result {
 		debugPrint("evaluate(): evr comparison operation was true\n")
 		ret.Result = true
 	}
-	return
+	return ret, nil
 }

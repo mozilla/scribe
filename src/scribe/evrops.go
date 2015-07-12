@@ -7,6 +7,7 @@
 package scribe
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -51,7 +52,7 @@ func evrIsDigit(c rune) bool {
 	return unicode.IsDigit(c)
 }
 
-func evrExtract(s string) EVR {
+func evrExtract(s string) (EVR, error) {
 	var ret EVR
 	var idx int
 
@@ -63,7 +64,7 @@ func evrExtract(s string) EVR {
 	}
 
 	if idx >= len(s) {
-		panic("evrExtract: all digits")
+		return ret, fmt.Errorf("evrExtract: all digits")
 	}
 
 	if s[idx] == ':' {
@@ -75,7 +76,7 @@ func evrExtract(s string) EVR {
 	}
 
 	if idx >= len(s) {
-		panic("evrExtract: only epoch")
+		return ret, fmt.Errorf("evrExtract: only epoch")
 	}
 	remain := s[idx:]
 
@@ -84,7 +85,7 @@ func evrExtract(s string) EVR {
 		ret.version = remain[:rp0]
 		rp0++
 		if rp0 >= len(remain) {
-			panic("evrExtract: ends in dash")
+			return ret, fmt.Errorf("evrExtract: ends in dash")
 		}
 		ret.release = remain[rp0:]
 	} else {
@@ -93,7 +94,7 @@ func evrExtract(s string) EVR {
 	}
 
 	debugPrint("evrExtract(): epoch=%v, version=%v, revision=%v\n", ret.epoch, ret.version, ret.release)
-	return ret
+	return ret, nil
 }
 
 func evrRpmTokenizer(s string) []string {
@@ -193,57 +194,66 @@ func evrRpmVerCmp(actual string, check string) int {
 	return 0
 }
 
-func evrRpmCompare(actual EVR, check EVR) int {
+func evrRpmCompare(actual EVR, check EVR) (int, error) {
 	aepoch, err := strconv.Atoi(actual.epoch)
 	if err != nil {
-		panic("evrRpmCompare: bad actual epoch")
+		return 0, fmt.Errorf("evrRpmCompare: bad actual epoch")
 	}
 	cepoch, err := strconv.Atoi(check.epoch)
 	if err != nil {
-		panic("evrRpmCompare: bad check epoch")
+		return 0, fmt.Errorf("evrRpmCompare: bad check epoch")
 	}
 	if cepoch > aepoch {
-		return 1
+		return 1, nil
 	} else if cepoch < aepoch {
-		return -1
+		return -1, nil
 	}
 
 	ret := evrRpmVerCmp(actual.version, check.version)
 	if ret != 0 {
-		return ret
+		return ret, nil
 	}
 
 	ret = evrRpmVerCmp(actual.release, check.release)
 	if ret != 0 {
-		return ret
+		return ret, nil
 	}
 
-	return 0
+	return 0, nil
 }
 
-func evrCompare(op int, actual string, check string) bool {
+func evrCompare(op int, actual string, check string) (bool, error) {
 	debugPrint("evrCompare(): %v %v %v\n", actual, evrOperationStr(op), check)
 
-	evract := evrExtract(actual)
-	evrchk := evrExtract(check)
+	evract, err := evrExtract(actual)
+	if err != nil {
+		return false, err
+	}
+	evrchk, err := evrExtract(check)
+	if err != nil {
+		return false, err
+	}
 
-	ret := evrRpmCompare(evract, evrchk)
+	ret, err := evrRpmCompare(evract, evrchk)
+	if err != nil {
+		return false, err
+	}
 	switch op {
 	case EVROP_EQUALS:
 		if ret != 0 {
-			return false
+			return false, nil
 		}
-		return true
+		return true, nil
 	case EVROP_LESS_THAN:
 		if ret == 1 {
-			return true
+			return true, nil
 		}
-		return false
+		return false, nil
 	}
-	panic("evrCompare: unknown operator")
+	return false, fmt.Errorf("evrCompare: unknown operator")
 }
 
 // Exported version of evrCompare() used for testing in evrtest.
-func TestEvrCompare(op int, actual string, check string) bool {
+func TestEvrCompare(op int, actual string, check string) (bool, error) {
 	return evrCompare(op, actual, check)
 }

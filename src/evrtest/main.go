@@ -45,7 +45,11 @@ func main() {
 			fmt.Fprintf(os.Stderr, "unknown operation %v\n", s0[0])
 			os.Exit(1)
 		}
-		result := scribe.TestEvrCompare(opmode, s0[1], s0[2])
+		result, err := scribe.TestEvrCompare(opmode, s0[1], s0[2])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR %v\n", err)
+			os.Exit(2)
+		}
 		if !result {
 			fmt.Println("FAIL")
 			os.Exit(2)
