@@ -26,7 +26,12 @@ type FileContent struct {
 
 type contentMatch struct {
 	path    string
-	matches []string
+	matches []matchLine
+}
+
+type matchLine struct {
+	fullmatch string
+	groups    []string
 }
 
 func (f *FileContent) expandVariables(v []Variable) {
@@ -37,10 +42,12 @@ func (f *FileContent) expandVariables(v []Variable) {
 func (f *FileContent) getCriteria() (ret []EvaluationCriteria) {
 	for _, x := range f.matches {
 		for _, y := range x.matches {
-			n := EvaluationCriteria{}
-			n.Identifier = x.path
-			n.TestValue = y
-			ret = append(ret, n)
+			for _, z := range y.groups {
+				n := EvaluationCriteria{}
+				n.Identifier = x.path
+				n.TestValue = z
+				ret = append(ret, n)
+			}
 		}
 	}
 	return ret
@@ -67,18 +74,16 @@ func (f *FileContent) prepare() error {
 			continue
 		}
 
-		for _, i := range m {
-			if len(i) < 2 {
-				continue
+		ncm := contentMatch{}
+		ncm.path = x
+		ncm.matches = m
+		f.matches = append(f.matches, ncm)
+		debugPrint("prepare(): content matches in %v\n", ncm.path)
+		for _, i := range ncm.matches {
+			debugPrint("prepare(): full match: \"%v\"\n", i.fullmatch)
+			for j := range i.groups {
+				debugPrint("prepare(): group %v: \"%v\"\n", j, i.groups[j])
 			}
-			ncm := contentMatch{}
-			ncm.path = x
-			ncm.matches = make([]string, 0)
-			for j := 1; j < len(i); j++ {
-				debugPrint("prepare(): matched %v, \"%v\"\n", ncm.path, i[j])
-				ncm.matches = append(ncm.matches, i[j])
-			}
-			f.matches = append(f.matches, ncm)
 		}
 	}
 
@@ -167,7 +172,7 @@ func (s *simpleFileLocator) locateInner(target string, useRegexp bool, path stri
 	return nil
 }
 
-func fileContentCheck(path string, regex string) ([][]string, error) {
+func fileContentCheck(path string, regex string) ([]matchLine, error) {
 	re, err := regexp.Compile(regex)
 	if err != nil {
 		return nil, err
@@ -181,7 +186,7 @@ func fileContentCheck(path string, regex string) ([][]string, error) {
 	}()
 
 	rdr := bufio.NewReader(fd)
-	ret := make([][]string, 0)
+	ret := make([]matchLine, 0)
 	for {
 		ln, err := rdr.ReadString('\n')
 		if err != nil {
@@ -193,10 +198,11 @@ func fileContentCheck(path string, regex string) ([][]string, error) {
 		}
 		mtch := re.FindStringSubmatch(ln)
 		if len(mtch) > 0 {
-			newmatch := make([]string, 0)
-			newmatch = append(newmatch, mtch[0])
+			newmatch := matchLine{}
+			newmatch.groups = make([]string, 0)
+			newmatch.fullmatch = mtch[0]
 			for i := 1; i < len(mtch); i++ {
-				newmatch = append(newmatch, mtch[i])
+				newmatch.groups = append(newmatch.groups, mtch[i])
 			}
 			ret = append(ret, newmatch)
 		}
