@@ -8,62 +8,119 @@
 		"name": "filename0",
 		"identifier": "test0",
 		"expectedresult": true,
-		"filename": {
+		"filecontent": {
 			"path": "${root}",
-			"file": "(.*)"
+			"file": "testfile0",
+			"expression": "var = \\((\\S+), (\\S+)\\)"
 		}
 	},
 
 	{
 		"name": "filename1",
 		"identifier": "test1",
-		"expectedresult": false,
-		"filename": {
-			"path": "${root}",
-			"file": ".*(nosuchfile).*"
-		}
-	},
-
-	{
-		"name": "filename2",
-		"identifier": "test2",
 		"expectedresult": true,
-		"filename": {
+		"filecontent": {
 			"path": "${root}",
-			"file": "file-(\\S+).txt"
-		},
-		"evr": {
-			"operation": "<",
-			"value": "1.6.0"
+			"file": "testfile1",
+			"expression": "minor = (\\S+)"
 		}
 	},
 
 	{
-		"name": "filename3",
-		"identifier": "test3",
+		"name": "modifier0",
+		"identifier": "test2",
 		"expectedresult": false,
-		"filename": {
-			"path": "${root}",
-			"file": "file-(\\S+).txt"
-		},
-		"evr": {
-			"operation": "<",
-			"value": "1.1.0"
+		"modifier": {
+			"concat": {
+				"operator": "."
+			},
+			"sources": [
+			]
 		}
 	},
 
 	{
-		"name": "filename4",
+		"name": "modifier1",
+		"identifier": "test3",
+		"expectedresult": true,
+		"modifier": {
+			"concat": {
+				"operator": "."
+			},
+			"sources": [
+			{
+				"name": "filename0",
+				"select": "all"
+			}
+			]
+		}
+	},
+
+	{
+		"name": "modifier2",
 		"identifier": "test4",
 		"expectedresult": true,
-		"filename": {
-			"path": "${root}",
-			"file": "file-(\\S+).txt"
+		"modifier": {
+			"concat": {
+				"operator": "."
+			},
+			"sources": [
+			{
+				"name": "filename0",
+				"select": "all"
+			}
+			]
+		},
+		"evr": {
+			"operation": "=",
+			"value": "1.5"
+		}
+	},
+
+	{
+		"name": "modifier3",
+		"identifier": "test5",
+		"expectedresult": true,
+		"modifier": {
+			"concat": {
+				"operator": "."
+			},
+			"sources": [
+			{
+				"name": "filename0",
+				"select": "all"
+			}
+			]
 		},
 		"regexp": {
-			"value": "1.2.3"
+			"value": "1.5"
+		}
+	},
+
+	{
+		"name": "modifier4",
+		"identifier": "test6",
+		"expectedresult": true,
+		"modifier": {
+			"concat": {
+				"operator": "."
+			},
+			"sources": [
+			{
+				"name": "filename0",
+				"select": "all"
+			},
+			{
+				"name": "filename1",
+				"select": "all"
+			}
+			]
+		},
+		"evr": {
+			"operation": "<",
+			"value": "1.5.9"
 		}
 	}
-
 	]
 }
+
