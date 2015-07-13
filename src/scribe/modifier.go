@@ -86,6 +86,9 @@ func (c *ConcatModifier) expandVariables(v []Variable) {
 
 func (c *ConcatModifier) getCriteria() []EvaluationCriteria {
 	ret := make([]EvaluationCriteria, 0)
+	if len(c.criteria) == 0 {
+		return ret
+	}
 	nc := EvaluationCriteria{}
 	ncid := ""
 	buf := ""
