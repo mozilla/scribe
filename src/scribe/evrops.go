@@ -57,6 +57,15 @@ func evrIsDigit(c rune) bool {
 	return unicode.IsDigit(c)
 }
 
+func evrIsNumber(s string) bool {
+	_, err := strconv.Atoi(s)
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
+}
+
 func evrExtract(s string) (EVR, error) {
 	var ret EVR
 	var idx int
@@ -179,6 +188,25 @@ func evrRpmVerCmp(actual string, check string) int {
 		}
 		if evrIsDigit(rune(chktest[0])) && !evrIsDigit(rune(acttest[0])) {
 			return 1
+		}
+
+		// If both values are pure numeric values, convert and check here
+		if evrIsNumber(acttest) && evrIsNumber(chktest) {
+			na, err := strconv.Atoi(acttest)
+			if err != nil {
+				panic("IsNumber and failed actual conversion")
+			}
+			nc, err := strconv.Atoi(chktest)
+			if err != nil {
+				panic("IsNumber and failed check conversion")
+			}
+			if nc > na {
+				return 1
+			} else if nc < na {
+				return -1
+			} else {
+				continue
+			}
 		}
 
 		// Do a lexical string comparison here, this should work
