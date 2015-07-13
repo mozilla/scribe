@@ -15,6 +15,7 @@ type Test struct {
 	Identifier  string      `json:"identifier"`
 	Aliases     []string    `json:"aliases"`
 	Package     Package     `json:"package"`
+	Modifier    Modifier    `json:"modifier"`
 	FileContent FileContent `json:"filecontent"`
 	FileName    FileName    `json:"filename"`
 	EVR         EVRTest     `json:"evr"`
@@ -22,6 +23,9 @@ type Test struct {
 	If          []string    `json:"if"`
 
 	Expected bool `json:"expectedresult"`
+
+	// true if test has been prepared
+	prepared bool
 
 	// true if test has been evaluated at least once
 	evaluated bool
@@ -91,11 +95,43 @@ func (t *Test) getSourceInterface() genericSource {
 		return &t.FileContent
 	} else if t.FileName.Path != "" {
 		return &t.FileName
+	} else if t.Modifier.Concat.Operator != "" {
+		return &t.Modifier.Concat
 	}
 	return nil
 }
 
 func (t *Test) prepare(d *Document) error {
+	if t.prepared {
+		return nil
+	}
+	t.prepared = true
+
+	// If this test is a modifier, prepare all the source tests first.
+	if len(t.Modifier.Sources) != 0 {
+		debugPrint("prepare(): readying modifier \"%v\"\n", t.Name)
+		for i := range t.Modifier.Sources {
+			nm := t.Modifier.Sources[i].Name
+			debugPrint("prepare(): preparing modifier source \"%v\"\n", nm)
+			dt, err := d.getTest(nm)
+			if err != nil {
+				t.Err = err
+				return t.Err
+			}
+			err = dt.prepare(d)
+			if err != nil {
+				t.Err = err
+				return t.Err
+			}
+			err = t.Modifier.Sources[i].selectCriteria(dt)
+			if err != nil {
+				t.Err = err
+				return t.Err
+			}
+			t.Modifier.addMergeTarget(&t.Modifier.Sources[i])
+		}
+	}
+
 	p := t.getSourceInterface()
 	if p == nil {
 		t.Err = fmt.Errorf("source has no valid interface")
