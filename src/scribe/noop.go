@@ -7,10 +7,10 @@
 
 package scribe
 
-type NOOP struct {
+type noop struct {
 }
 
-func (n *NOOP) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
+func (n *noop) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
 	ret.Criteria = c
 	ret.Result = true
 	return

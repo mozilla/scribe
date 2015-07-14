@@ -11,11 +11,11 @@ import (
 	"regexp"
 )
 
-type Regexp struct {
+type regex struct {
 	Value string `json:"value"`
 }
 
-func (r *Regexp) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
+func (r *regex) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
 	var re *regexp.Regexp
 	debugPrint("evaluate(): regexp %v \"%v\", \"%v\"\n", c.Identifier, c.TestValue, r.Value)
 	re, err = regexp.Compile(r.Value)

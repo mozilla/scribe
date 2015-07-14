@@ -11,28 +11,28 @@ import (
 	"fmt"
 )
 
-type Package struct {
+type pkg struct {
 	Name    string `json:"name"`
-	pkgInfo []PackageInfo
+	pkgInfo []packageInfo
 }
 
-type PackageInfo struct {
+type packageInfo struct {
 	Name    string
 	Version string
 }
 
-func (p *Package) isModifier() bool {
+func (p *pkg) isModifier() bool {
 	return false
 }
 
-func (p *Package) validate() error {
+func (p *pkg) validate() error {
 	if len(p.Name) == 0 {
 		return fmt.Errorf("package must specify name")
 	}
 	return nil
 }
 
-func (p *Package) getCriteria() (ret []EvaluationCriteria) {
+func (p *pkg) getCriteria() (ret []EvaluationCriteria) {
 	for _, x := range p.pkgInfo {
 		n := EvaluationCriteria{}
 		n.Identifier = x.Name
@@ -42,12 +42,12 @@ func (p *Package) getCriteria() (ret []EvaluationCriteria) {
 	return ret
 }
 
-func (p *Package) prepare() error {
+func (p *pkg) prepare() error {
 	debugPrint("prepare(): preparing information for package \"%v\"\n", p.Name)
-	p.pkgInfo = make([]PackageInfo, 0)
+	p.pkgInfo = make([]packageInfo, 0)
 	ret := getPackage(p.Name)
 	for _, x := range ret.results {
-		n := PackageInfo{}
+		n := packageInfo{}
 		n.Name = x.name
 		n.Version = x.version
 		p.pkgInfo = append(p.pkgInfo, n)
@@ -55,6 +55,6 @@ func (p *Package) prepare() error {
 	return nil
 }
 
-func (p *Package) expandVariables(v []Variable) {
+func (p *pkg) expandVariables(v []variable) {
 	p.Name = variableExpansion(v, p.Name)
 }

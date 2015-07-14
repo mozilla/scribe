@@ -11,12 +11,12 @@ import (
 	"fmt"
 )
 
-type Modifier struct {
-	Sources []ModifierSource `json:"sources"`
-	Concat  ConcatModifier   `json:"concat"`
+type modifier struct {
+	Sources []modifierSource `json:"sources"`
+	Concat  concatModifier   `json:"concat"`
 }
 
-func (m *Modifier) addMergeTarget(ms *ModifierSource) {
+func (m *modifier) addMergeTarget(ms *modifierSource) {
 	if m.Concat.Operator != "" {
 		m.Concat.setMergeTarget(ms)
 	} else {
@@ -25,14 +25,14 @@ func (m *Modifier) addMergeTarget(ms *ModifierSource) {
 	debugPrint("addMergeTarget(): merge target at %p\n", ms)
 }
 
-type ModifierSource struct {
+type modifierSource struct {
 	Name   string `json:"name"`
 	Select string `json:"select"`
 
 	criteria modifierData
 }
 
-func (m *ModifierSource) selectCriteria(t *Test) error {
+func (m *modifierSource) selectCriteria(t *Test) error {
 	debugPrint("selectCriteria(): modifier selecting criteria from \"%v\"\n", t.Name)
 	// XXX Just support "all" for now, this could change to select specific
 	// elements of the source criteria slice.
@@ -55,11 +55,11 @@ type modifierData struct {
 }
 
 type mergingModifier struct {
-	targets  []*ModifierSource
+	targets  []*modifierSource
 	criteria []EvaluationCriteria
 }
 
-func (m *mergingModifier) setMergeTarget(ms *ModifierSource) {
+func (m *mergingModifier) setMergeTarget(ms *modifierSource) {
 	m.targets = append(m.targets, ms)
 }
 
@@ -72,31 +72,31 @@ func (m *mergingModifier) mergeTargets() {
 	}
 }
 
-type ConcatModifier struct {
+type concatModifier struct {
 	Operator string `json:"operator"`
 	mergingModifier
 }
 
-func (c *ConcatModifier) prepare() error {
+func (c *concatModifier) prepare() error {
 	c.mergeTargets()
 	return nil
 }
 
-func (c *ConcatModifier) isModifier() bool {
+func (c *concatModifier) isModifier() bool {
 	return true
 }
 
-func (c *ConcatModifier) validate() error {
+func (c *concatModifier) validate() error {
 	if len(c.Operator) == 0 {
 		return fmt.Errorf("must specify concat operator")
 	}
 	return nil
 }
 
-func (c *ConcatModifier) expandVariables(v []Variable) {
+func (c *concatModifier) expandVariables(v []variable) {
 }
 
-func (c *ConcatModifier) getCriteria() []EvaluationCriteria {
+func (c *concatModifier) getCriteria() []EvaluationCriteria {
 	ret := make([]EvaluationCriteria, 0)
 	if len(c.criteria) == 0 {
 		return ret

@@ -11,12 +11,12 @@ import (
 	"fmt"
 )
 
-type EVRTest struct {
+type evrtest struct {
 	Operation string `json:"operation"`
 	Value     string `json:"value"`
 }
 
-func (e *EVRTest) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
+func (e *evrtest) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
 	debugPrint("evaluate(): evr %v \"%v\", %v \"%v\"\n", c.Identifier, c.TestValue, e.Operation, e.Value)
 	evrop := evrLookupOperation(e.Operation)
 	if evrop == EVROP_UNKNOWN {

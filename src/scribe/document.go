@@ -14,7 +14,7 @@ import (
 // A scribe document. Contains all tests and other information used to execute
 // the document.
 type Document struct {
-	Variables []Variable `json:"variables"`
+	Variables []variable `json:"variables"`
 	Tests     []Test     `json:"tests"`
 }
 

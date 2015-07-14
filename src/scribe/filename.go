@@ -12,7 +12,7 @@ import (
 	"regexp"
 )
 
-type FileName struct {
+type filename struct {
 	Path string `json:"path"`
 	File string `json:"file"`
 
@@ -24,11 +24,11 @@ type nameMatch struct {
 	match string
 }
 
-func (f *FileName) isModifier() bool {
+func (f *filename) isModifier() bool {
 	return false
 }
 
-func (f *FileName) validate() error {
+func (f *filename) validate() error {
 	if len(f.Path) == 0 {
 		return fmt.Errorf("filename path must be set")
 	}
@@ -38,11 +38,11 @@ func (f *FileName) validate() error {
 	return nil
 }
 
-func (f *FileName) expandVariables(v []Variable) {
+func (f *filename) expandVariables(v []variable) {
 	f.Path = variableExpansion(v, f.Path)
 }
 
-func (f *FileName) getCriteria() (ret []EvaluationCriteria) {
+func (f *filename) getCriteria() (ret []EvaluationCriteria) {
 	for _, x := range f.matches {
 		n := EvaluationCriteria{}
 		n.Identifier = x.path
@@ -52,7 +52,7 @@ func (f *FileName) getCriteria() (ret []EvaluationCriteria) {
 	return ret
 }
 
-func (f *FileName) prepare() error {
+func (f *filename) prepare() error {
 	debugPrint("prepare(): analyzing file system, path %v, file \"%v\"\n", f.Path, f.File)
 
 	sfl := newSimpleFileLocator()

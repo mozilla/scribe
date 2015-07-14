@@ -17,7 +17,7 @@ import (
 	"regexp"
 )
 
-type FileContent struct {
+type filecontent struct {
 	Path       string `json:"path"`
 	File       string `json:"file"`
 	Expression string `json:"expression"`
@@ -35,7 +35,7 @@ type matchLine struct {
 	groups    []string
 }
 
-func (f *FileContent) validate() error {
+func (f *filecontent) validate() error {
 	if len(f.Path) == 0 {
 		return fmt.Errorf("filecontent path must be set")
 	}
@@ -56,16 +56,16 @@ func (f *FileContent) validate() error {
 	return nil
 }
 
-func (f *FileContent) isModifier() bool {
+func (f *filecontent) isModifier() bool {
 	return false
 }
 
-func (f *FileContent) expandVariables(v []Variable) {
+func (f *filecontent) expandVariables(v []variable) {
 	f.Path = variableExpansion(v, f.Path)
 	f.File = variableExpansion(v, f.File)
 }
 
-func (f *FileContent) getCriteria() (ret []EvaluationCriteria) {
+func (f *filecontent) getCriteria() (ret []EvaluationCriteria) {
 	for _, x := range f.matches {
 		for _, y := range x.matches {
 			for _, z := range y.groups {
@@ -79,7 +79,7 @@ func (f *FileContent) getCriteria() (ret []EvaluationCriteria) {
 	return ret
 }
 
-func (f *FileContent) prepare() error {
+func (f *filecontent) prepare() error {
 	debugPrint("prepare(): analyzing file system, path %v, file \"%v\"\n", f.Path, f.File)
 
 	sfl := newSimpleFileLocator()

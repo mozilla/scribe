@@ -15,12 +15,12 @@ type Test struct {
 	Name        string      `json:"name"`
 	Identifier  string      `json:"identifier"`
 	Aliases     []string    `json:"aliases"`
-	Package     Package     `json:"package"`
-	Modifier    Modifier    `json:"modifier"`
-	FileContent FileContent `json:"filecontent"`
-	FileName    FileName    `json:"filename"`
-	EVR         EVRTest     `json:"evr"`
-	Regexp      Regexp      `json:"regexp"`
+	Package     pkg         `json:"package"`
+	Modifier    modifier    `json:"modifier"`
+	FileContent filecontent `json:"filecontent"`
+	FileName    filename    `json:"filename"`
+	EVR         evrtest     `json:"evr"`
+	Regexp      regex       `json:"regexp"`
 	If          []string    `json:"if"`
 
 	Expected bool `json:"expectedresult"`
@@ -71,7 +71,7 @@ type EvaluationCriteria struct {
 type genericSource interface {
 	prepare() error
 	getCriteria() []EvaluationCriteria
-	expandVariables([]Variable)
+	expandVariables([]variable)
 	validate() error
 	isModifier() bool
 }
@@ -145,7 +145,7 @@ func (t *Test) getEvaluationInterface() genericEvaluator {
 	// If no evaluation criteria exists, use a no op evaluator
 	// which will always return true for the test if any source objects
 	// are identified.
-	return &NOOP{}
+	return &noop{}
 }
 
 func (t *Test) getSourceInterface() genericSource {
