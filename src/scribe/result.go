@@ -9,6 +9,7 @@ package scribe
 
 import (
 	"fmt"
+	"strings"
 )
 
 type TestResult struct {
@@ -47,8 +48,41 @@ func GetResults(d Document, name string) (TestResult, error) {
 	}
 	ret := TestResult{}
 	ret.Name = t.Name
-	ret.Error = fmt.Sprintf("%v", t.err)
+	if t.err != nil {
+		ret.Error = fmt.Sprintf("%v", t.err)
+	}
 	ret.MasterResult = t.masterResult
 	ret.HasTrueResults = t.hasTrueResults
-	return TestResult{}, nil
+	for _, x := range t.results {
+		nr := TestSubResult{}
+		nr.Result = x.result
+		nr.Identifier = x.criteria.identifier
+		ret.Results = append(ret.Results, nr)
+	}
+	return ret, nil
+}
+
+// A helper function to convert TestResult r into a human readable result
+// suitable for display.
+func HumanResult(r TestResult) string {
+	lns := make([]string, 0)
+	lns = append(lns, fmt.Sprintf("result for \"%v\"", r.Name))
+	if r.MasterResult {
+		lns = append(lns, "\tmaster result: true")
+	} else {
+		buf := "\tmaster result: false"
+		if r.HasTrueResults {
+			buf = buf + ", has true results, failure caused by dependency"
+		}
+		lns = append(lns, buf)
+	}
+	if r.Error != "" {
+		buf := fmt.Sprintf("[error] error: %v", r.Error)
+		lns = append(lns, buf)
+	}
+	for _, x := range r.Results {
+		buf := fmt.Sprintf("\t[%v] identifier: \"%v\"", x.Result, x.Identifier)
+		lns = append(lns, buf)
+	}
+	return strings.Join(lns, "\n") + "\n"
 }

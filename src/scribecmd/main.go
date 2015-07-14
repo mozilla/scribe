@@ -84,7 +84,12 @@ func main() {
 	}
 
 	for _, x := range doc.GetTestNames() {
-		scribe.GetResults(doc, x)
+		tr, err := scribe.GetResults(doc, x)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error obtaining results for \"%v\": %v\n", x, err)
+			continue
+		}
+		fmt.Fprintf(os.Stdout, "%v", scribe.HumanResult(tr))
 	}
 
 	os.Exit(0)
