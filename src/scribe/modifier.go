@@ -32,7 +32,7 @@ type modifierSource struct {
 	criteria modifierData
 }
 
-func (m *modifierSource) selectCriteria(t *Test) error {
+func (m *modifierSource) selectCriteria(t *test) error {
 	debugPrint("selectCriteria(): modifier selecting criteria from \"%v\"\n", t.Name)
 	// XXX Just support "all" for now, this could change to select specific
 	// elements of the source criteria slice.
@@ -51,12 +51,12 @@ func (m *modifierSource) selectCriteria(t *Test) error {
 
 type modifierData struct {
 	testName string
-	criteria []EvaluationCriteria
+	criteria []evaluationCriteria
 }
 
 type mergingModifier struct {
 	targets  []*modifierSource
-	criteria []EvaluationCriteria
+	criteria []evaluationCriteria
 }
 
 func (m *mergingModifier) setMergeTarget(ms *modifierSource) {
@@ -64,7 +64,7 @@ func (m *mergingModifier) setMergeTarget(ms *modifierSource) {
 }
 
 func (m *mergingModifier) mergeTargets() {
-	m.criteria = make([]EvaluationCriteria, 0)
+	m.criteria = make([]evaluationCriteria, 0)
 	for _, x := range m.targets {
 		for _, y := range x.criteria.criteria {
 			m.criteria = append(m.criteria, y)
@@ -96,25 +96,25 @@ func (c *concatModifier) validate() error {
 func (c *concatModifier) expandVariables(v []variable) {
 }
 
-func (c *concatModifier) getCriteria() []EvaluationCriteria {
-	ret := make([]EvaluationCriteria, 0)
+func (c *concatModifier) getCriteria() []evaluationCriteria {
+	ret := make([]evaluationCriteria, 0)
 	if len(c.criteria) == 0 {
 		return ret
 	}
-	nc := EvaluationCriteria{}
+	nc := evaluationCriteria{}
 	ncid := ""
 	buf := ""
 	for _, x := range c.criteria {
 		if len(buf) == 0 {
-			ncid = "concat:" + x.Identifier
-			buf = x.TestValue
+			ncid = "concat:" + x.identifier
+			buf = x.testValue
 		} else {
-			ncid = ncid + "," + x.Identifier
-			buf = buf + c.Operator + x.TestValue
+			ncid = ncid + "," + x.identifier
+			buf = buf + c.Operator + x.testValue
 		}
 	}
-	nc.Identifier = ncid
-	nc.TestValue = buf
+	nc.identifier = ncid
+	nc.testValue = buf
 	ret = append(ret, nc)
 	return ret
 }

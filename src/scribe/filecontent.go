@@ -65,13 +65,13 @@ func (f *filecontent) expandVariables(v []variable) {
 	f.File = variableExpansion(v, f.File)
 }
 
-func (f *filecontent) getCriteria() (ret []EvaluationCriteria) {
+func (f *filecontent) getCriteria() (ret []evaluationCriteria) {
 	for _, x := range f.matches {
 		for _, y := range x.matches {
 			for _, z := range y.groups {
-				n := EvaluationCriteria{}
-				n.Identifier = x.path
-				n.TestValue = z
+				n := evaluationCriteria{}
+				n.identifier = x.path
+				n.testValue = z
 				ret = append(ret, n)
 			}
 		}

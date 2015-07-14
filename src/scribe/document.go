@@ -15,7 +15,7 @@ import (
 // the document.
 type Document struct {
 	Variables []variable `json:"variables"`
-	Tests     []Test     `json:"tests"`
+	Tests     []test     `json:"tests"`
 }
 
 // Validate a scribe document for consistency. This identifies any errors in
@@ -29,6 +29,15 @@ func (d *Document) Validate() error {
 		}
 	}
 	return nil
+}
+
+// Return the names of all tests present in a document.
+func (d *Document) GetTestNames() []string {
+	ret := make([]string, 0)
+	for _, x := range d.Tests {
+		ret = append(ret, x.Name)
+	}
+	return ret
 }
 
 func (d *Document) runTests() error {
@@ -47,7 +56,7 @@ func (d *Document) runTests() error {
 
 // Return a pointer to a test instance. Will locate the test whos name matches
 // name, or has an alias that matches name.
-func (d *Document) getTest(name string) (*Test, error) {
+func (d *Document) getTest(name string) (*test, error) {
 	for i := range d.Tests {
 		if d.Tests[i].Name == name {
 			return &d.Tests[i], nil

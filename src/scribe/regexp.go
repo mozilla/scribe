@@ -15,16 +15,16 @@ type regex struct {
 	Value string `json:"value"`
 }
 
-func (r *regex) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
+func (r *regex) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {
 	var re *regexp.Regexp
-	debugPrint("evaluate(): regexp %v \"%v\", \"%v\"\n", c.Identifier, c.TestValue, r.Value)
+	debugPrint("evaluate(): regexp %v \"%v\", \"%v\"\n", c.identifier, c.testValue, r.Value)
 	re, err = regexp.Compile(r.Value)
 	if err != nil {
 		return
 	}
-	ret.Criteria = c
-	if re.MatchString(c.TestValue) {
-		ret.Result = true
+	ret.criteria = c
+	if re.MatchString(c.testValue) {
+		ret.result = true
 	}
 	return
 }

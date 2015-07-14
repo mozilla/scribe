@@ -15,40 +15,7 @@ import (
 
 var flagDebug bool
 
-func showTextResults(doc scribe.Document) {
-	for _, x := range doc.Tests {
-		res, err := x.GetResults()
-		fmt.Fprintf(os.Stdout, "result %v \"%v\"\n", x.Identifier, x.Name)
-		if x.MasterResult {
-			fmt.Fprintf(os.Stdout, "\tmaster result: true\n")
-		} else {
-			fmt.Fprintf(os.Stdout, "\tmaster result: false")
-			if x.HasTrueResults {
-				fmt.Fprintf(os.Stdout, ", has true results, failure caused by dependency failure")
-			}
-			fmt.Fprintf(os.Stdout, "\n")
-		}
-		if err != nil {
-			fmt.Fprintf(os.Stdout, "\t[error] error: %v\n", err)
-		} else {
-			if len(res) == 0 {
-				fmt.Fprintf(os.Stdout, "\t[false] no candidates found\n")
-				continue
-			}
-			for _, y := range res {
-				if y.Result {
-					fmt.Fprintf(os.Stdout, "\t[true]")
-				} else {
-					fmt.Fprintf(os.Stdout, "\t[false]")
-				}
-				fmt.Fprintf(os.Stdout, " identifier: \"%v\"", y.Criteria.Identifier)
-				fmt.Fprintf(os.Stdout, "\n")
-			}
-		}
-	}
-}
-
-func failExit(t scribe.Test) {
+func failExit(t scribe.TestResult) {
 	fmt.Fprintf(os.Stdout, "error: test result for \"%v\" was unexpected, exiting\n", t.Name)
 	os.Exit(2)
 }
@@ -116,7 +83,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	showTextResults(doc)
+	for _, x := range doc.GetTestNames() {
+		scribe.GetResults(doc, x)
+	}
 
 	os.Exit(0)
 }

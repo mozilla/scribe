@@ -14,7 +14,7 @@ import (
 type runtime struct {
 	debugging   bool
 	debugWriter io.Writer
-	excall      func(Test)
+	excall      func(TestResult)
 	testHooks   bool
 }
 
@@ -40,7 +40,7 @@ func Bootstrap() (err error) {
 // type as an argument. When this is set, if the result of a test does not
 // match the value set in "expectedresult" for the test, the function is
 // immediately called with the applicable test as an argument.
-func ExpectedCallback(f func(Test)) {
+func ExpectedCallback(f func(TestResult)) {
 	sRuntime.excall = f
 }
 

@@ -11,7 +11,7 @@ import (
 	"fmt"
 )
 
-type Test struct {
+type test struct {
 	Name        string      `json:"name"`
 	Identifier  string      `json:"identifier"`
 	Aliases     []string    `json:"aliases"`
@@ -33,54 +33,55 @@ type Test struct {
 
 	// The last error condition encountered during preparation
 	// or execution. nil if no error occurred.
-	Err error
+	err error
 
 	// The final result for this test, a rolled up version of the results
 	// of this test for any identified candidates. If at least one
 	// candidate for the test evaluated to true, the master result will be
 	// true.
-	MasterResult bool
-	// true if any candidates for this test returned a true result.
-	HasTrueResults bool
+	masterResult bool
+
+	// True if at least one result evaluated to true.
+	hasTrueResults bool
 
 	// Stores a slice of results for this test.
-	Results []EvaluationResult
+	results []evaluationResult
 }
 
 // The result of evaluation of a test. There can be more then one
 // EvaluationResult present in the results of a test, if the source
 // information returned more than one matching object.
-type EvaluationResult struct {
+type evaluationResult struct {
 	// The criteria used during evaluation.
-	Criteria EvaluationCriteria
+	criteria evaluationCriteria
 	// The result of the evaluation.
-	Result bool
+	result bool
 }
 
 // Generic criteria for an evaluation. A source object should always support
 // conversion from the specific type to a set of evaluation criteria.
-type EvaluationCriteria struct {
+type evaluationCriteria struct {
 	// An identifier used to track the source of a failed evaluation. For
 	// example, this may be a filename, if the TestValue is content from
 	// the file.
-	Identifier string
+	identifier string
 	// The actual test data used in the evaluator.
-	TestValue string
+	testValue string
 }
 
 type genericSource interface {
 	prepare() error
-	getCriteria() []EvaluationCriteria
+	getCriteria() []evaluationCriteria
 	expandVariables([]variable)
 	validate() error
 	isModifier() bool
 }
 
 type genericEvaluator interface {
-	evaluate(EvaluationCriteria) (EvaluationResult, error)
+	evaluate(evaluationCriteria) (evaluationResult, error)
 }
 
-func (t *Test) validate(d *Document) error {
+func (t *test) validate(d *Document) error {
 	if len(t.Name) == 0 {
 		return fmt.Errorf("a test in document has no name")
 	}
@@ -127,16 +128,7 @@ func (t *Test) validate(d *Document) error {
 	return nil
 }
 
-// Return a set of evaluation results for a given test. Returns an error if an
-// error occured during test preparation or execution.
-func (t *Test) GetResults() ([]EvaluationResult, error) {
-	if t.Err != nil {
-		return nil, t.Err
-	}
-	return t.Results, nil
-}
-
-func (t *Test) getEvaluationInterface() genericEvaluator {
+func (t *test) getEvaluationInterface() genericEvaluator {
 	if t.EVR.Value != "" {
 		return &t.EVR
 	} else if t.Regexp.Value != "" {
@@ -148,7 +140,7 @@ func (t *Test) getEvaluationInterface() genericEvaluator {
 	return &noop{}
 }
 
-func (t *Test) getSourceInterface() genericSource {
+func (t *test) getSourceInterface() genericSource {
 	if t.Package.Name != "" {
 		return &t.Package
 	} else if t.FileContent.Path != "" {
@@ -161,7 +153,7 @@ func (t *Test) getSourceInterface() genericSource {
 	return nil
 }
 
-func (t *Test) prepare(d *Document) error {
+func (t *test) prepare(d *Document) error {
 	if t.prepared {
 		return nil
 	}
@@ -175,18 +167,18 @@ func (t *Test) prepare(d *Document) error {
 			debugPrint("prepare(): preparing modifier source \"%v\"\n", nm)
 			dt, err := d.getTest(nm)
 			if err != nil {
-				t.Err = err
-				return t.Err
+				t.err = err
+				return t.err
 			}
 			err = dt.prepare(d)
 			if err != nil {
-				t.Err = err
-				return t.Err
+				t.err = err
+				return t.err
 			}
 			err = t.Modifier.Sources[i].selectCriteria(dt)
 			if err != nil {
-				t.Err = err
-				return t.Err
+				t.err = err
+				return t.err
 			}
 			t.Modifier.addMergeTarget(&t.Modifier.Sources[i])
 		}
@@ -194,26 +186,26 @@ func (t *Test) prepare(d *Document) error {
 
 	p := t.getSourceInterface()
 	if p == nil {
-		t.Err = fmt.Errorf("source has no valid interface")
-		return t.Err
+		t.err = fmt.Errorf("source has no valid interface")
+		return t.err
 	}
 	p.expandVariables(d.Variables)
 	err := p.prepare()
 	if err != nil {
-		t.Err = err
+		t.err = err
 		return err
 	}
 	return nil
 }
 
-func (t *Test) runTest(d *Document) error {
+func (t *test) runTest(d *Document) error {
 	if t.evaluated {
 		return nil
 	}
 
 	// If this test has failed at some point, return the error.
-	if t.Err != nil {
-		return t.Err
+	if t.err != nil {
+		return t.err
 	}
 
 	debugPrint("runTest(): running \"%v\"\n", t.Name)
@@ -223,58 +215,58 @@ func (t *Test) runTest(d *Document) error {
 	for _, x := range t.If {
 		dt, err := d.getTest(x)
 		if err != nil {
-			t.Err = err
-			return t.Err
+			t.err = err
+			return t.err
 		}
 		err = dt.runTest(d)
 		if err != nil {
-			t.Err = fmt.Errorf("a test dependency failed (\"%v\")", x)
-			return t.Err
+			t.err = fmt.Errorf("a test dependency failed (\"%v\")", x)
+			return t.err
 		}
 	}
 
 	ev := t.getEvaluationInterface()
 	if ev == nil {
-		t.Err = fmt.Errorf("test has no valid evaluation interface")
-		return t.Err
+		t.err = fmt.Errorf("test has no valid evaluation interface")
+		return t.err
 	}
 	si := t.getSourceInterface()
 	if si == nil {
-		t.Err = fmt.Errorf("test has no valid source interface")
-		return t.Err
+		t.err = fmt.Errorf("test has no valid source interface")
+		return t.err
 	}
 	for _, x := range si.getCriteria() {
 		res, err := ev.evaluate(x)
 		if err != nil {
-			t.Err = err
-			return t.Err
+			t.err = err
+			return t.err
 		}
-		t.Results = append(t.Results, res)
+		t.results = append(t.results, res)
 	}
 
 	// Set the master result for the test. If any of the dependent tests
 	// are false from a master result perspective, this one is also false.
 	// If at least one result for this test is true, the master result for
 	// the test is true.
-	t.HasTrueResults = false
-	for _, x := range t.Results {
-		if x.Result {
-			t.HasTrueResults = true
+	t.hasTrueResults = false
+	for _, x := range t.results {
+		if x.result {
+			t.hasTrueResults = true
 		}
 	}
-	t.MasterResult = false
-	if t.HasTrueResults {
-		t.MasterResult = true
+	t.masterResult = false
+	if t.hasTrueResults {
+		t.masterResult = true
 	}
 	for _, x := range t.If {
 		dt, err := d.getTest(x)
 		if err != nil {
-			t.Err = err
-			t.MasterResult = false
-			return t.Err
+			t.err = err
+			t.masterResult = false
+			return t.err
 		}
-		if !dt.MasterResult {
-			t.MasterResult = false
+		if !dt.masterResult {
+			t.masterResult = false
 			break
 		}
 	}
@@ -282,8 +274,12 @@ func (t *Test) runTest(d *Document) error {
 	// See if there is a test expected result handler installed, if so
 	// validate it and call the handler if required.
 	if sRuntime.excall != nil {
-		if t.MasterResult != t.Expected {
-			sRuntime.excall(*t)
+		if t.masterResult != t.Expected {
+			tr, err := GetResults(*d, t.Name)
+			if err != nil {
+				panic("GetResults() in expected handler")
+			}
+			sRuntime.excall(tr)
 		}
 	}
 

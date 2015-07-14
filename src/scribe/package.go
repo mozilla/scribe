@@ -32,11 +32,11 @@ func (p *pkg) validate() error {
 	return nil
 }
 
-func (p *pkg) getCriteria() (ret []EvaluationCriteria) {
+func (p *pkg) getCriteria() (ret []evaluationCriteria) {
 	for _, x := range p.pkgInfo {
-		n := EvaluationCriteria{}
-		n.Identifier = x.Name
-		n.TestValue = x.Version
+		n := evaluationCriteria{}
+		n.identifier = x.Name
+		n.testValue = x.Version
 		ret = append(ret, n)
 	}
 	return ret

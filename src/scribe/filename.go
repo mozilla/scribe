@@ -42,11 +42,11 @@ func (f *filename) expandVariables(v []variable) {
 	f.Path = variableExpansion(v, f.Path)
 }
 
-func (f *filename) getCriteria() (ret []EvaluationCriteria) {
+func (f *filename) getCriteria() (ret []evaluationCriteria) {
 	for _, x := range f.matches {
-		n := EvaluationCriteria{}
-		n.Identifier = x.path
-		n.TestValue = x.match
+		n := evaluationCriteria{}
+		n.identifier = x.path
+		n.testValue = x.match
 		ret = append(ret, n)
 	}
 	return ret

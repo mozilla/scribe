@@ -16,20 +16,20 @@ type evrtest struct {
 	Value     string `json:"value"`
 }
 
-func (e *evrtest) evaluate(c EvaluationCriteria) (ret EvaluationResult, err error) {
-	debugPrint("evaluate(): evr %v \"%v\", %v \"%v\"\n", c.Identifier, c.TestValue, e.Operation, e.Value)
+func (e *evrtest) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {
+	debugPrint("evaluate(): evr %v \"%v\", %v \"%v\"\n", c.identifier, c.testValue, e.Operation, e.Value)
 	evrop := evrLookupOperation(e.Operation)
 	if evrop == EVROP_UNKNOWN {
 		return ret, fmt.Errorf("invalid evr operation %v", e.Operation)
 	}
-	ret.Criteria = c
-	result, err := evrCompare(evrop, c.TestValue, e.Value)
+	ret.criteria = c
+	result, err := evrCompare(evrop, c.testValue, e.Value)
 	if err != nil {
 		return ret, err
 	}
 	if result {
 		debugPrint("evaluate(): evr comparison operation was true\n")
-		ret.Result = true
+		ret.result = true
 	}
 	return ret, nil
 }
