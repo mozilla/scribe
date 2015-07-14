@@ -64,6 +64,7 @@ type genericSource interface {
 	getCriteria() []EvaluationCriteria
 	expandVariables([]Variable)
 	validate() error
+	isModifier() bool
 }
 
 type genericEvaluator interface {
@@ -84,6 +85,18 @@ func (t *Test) validate(d *Document) error {
 	err := si.validate()
 	if err != nil {
 		return fmt.Errorf("%v: %v", t.Name, err)
+	}
+	// If this is a modifier, ensure the modifier sources are valid.
+	if si.isModifier() {
+		for _, x := range t.Modifier.Sources {
+			_, err := d.getTest(x.Name)
+			if err != nil {
+				return fmt.Errorf("%v: %v", t.Name, err)
+			}
+			if x.Select != "all" {
+				return fmt.Errorf("%v: modifier source must include selector", t.Name)
+			}
+		}
 	}
 	if t.getEvaluationInterface() == nil {
 		return fmt.Errorf("%v: no valid evaluation interface", t.Name)

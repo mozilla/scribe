@@ -23,6 +23,10 @@ type nameMatch struct {
 	match string
 }
 
+func (f *FileName) isModifier() bool {
+	return false
+}
+
 func (f *FileName) validate() error {
 	if len(f.Path) == 0 {
 		return fmt.Errorf("filename path must be set")

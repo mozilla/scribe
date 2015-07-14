@@ -20,6 +20,10 @@ type PackageInfo struct {
 	Version string
 }
 
+func (p *Package) isModifier() bool {
+	return false
+}
+
 func (p *Package) validate() error {
 	if len(p.Name) == 0 {
 		return fmt.Errorf("package must specify name")

@@ -55,6 +55,10 @@ func (f *FileContent) validate() error {
 	return nil
 }
 
+func (f *FileContent) isModifier() bool {
+	return false
+}
+
 func (f *FileContent) expandVariables(v []Variable) {
 	f.Path = variableExpansion(v, f.Path)
 	f.File = variableExpansion(v, f.File)
