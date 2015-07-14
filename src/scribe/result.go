@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+// Describes the results of a test. The type can be marshaled into a JSON
+// string as required.
 type TestResult struct {
 	// The name of the test.
 	Name string `json:"name"`
@@ -33,6 +35,9 @@ type TestResult struct {
 	Results []TestSubResult `json:"results"`
 }
 
+// For a given test, a number of sources can be identified that match the
+// criteria. For example, multiple files can be identifier with a given
+// filename. Each test tracks individual results for these cases.
 type TestSubResult struct {
 	// The result of evaluation for an identifier source.
 	Result bool `json:"result"`
