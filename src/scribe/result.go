@@ -15,6 +15,10 @@ import (
 type TestResult struct {
 	// The name of the test.
 	Name string `json:"name"`
+	// The identifier for the test.
+	Identifier string `json:"identifier"`
+	// Aliases for the test.
+	Aliases []string `json:"aliases"`
 
 	// True if error encountered during evaluation.
 	IsError bool `json:"iserror"`
@@ -48,6 +52,8 @@ func GetResults(d Document, name string) (TestResult, error) {
 	}
 	ret := TestResult{}
 	ret.Name = t.Name
+	ret.Aliases = t.Aliases
+	ret.Identifier = t.Identifier
 	if t.err != nil {
 		ret.Error = fmt.Sprintf("%v", t.err)
 	}
