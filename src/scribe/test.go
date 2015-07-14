@@ -69,6 +69,33 @@ type genericEvaluator interface {
 	evaluate(EvaluationCriteria) (EvaluationResult, error)
 }
 
+func (t *Test) validate(d *Document) error {
+	if len(t.Name) == 0 {
+		return fmt.Errorf("a test in document has no name")
+	}
+	if len(t.Identifier) == 0 {
+		return fmt.Errorf("%v: no identifier", t.Name)
+	}
+	if t.getSourceInterface() == nil {
+		return fmt.Errorf("%v: no valid source interface", t.Name)
+	}
+	if t.getEvaluationInterface() == nil {
+		return fmt.Errorf("%v: no valid evaluation interface", t.Name)
+	}
+	for _, x := range t.Aliases {
+		if len(x) == 0 {
+			return fmt.Errorf("%v: bad alias within test", t.Name)
+		}
+	}
+	for _, x := range t.If {
+		_, err := d.getTest(x)
+		if err != nil {
+			return fmt.Errorf("%v: %v", t.Name, err)
+		}
+	}
+	return nil
+}
+
 func (t *Test) GetResults() ([]EvaluationResult, error) {
 	if t.Err != nil {
 		return nil, t.Err

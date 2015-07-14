@@ -17,6 +17,16 @@ type Document struct {
 	Tests     []Test     `json:"tests"`
 }
 
+func (d *Document) Validate() error {
+	for _, x := range d.Tests {
+		err := x.validate(d)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (d *Document) runTests() error {
 	// Note that prepare() and runTest() will return an error if something
 	// goes wrong, but we don't propagate this back. Errors within a test
