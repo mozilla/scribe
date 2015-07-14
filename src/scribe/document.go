@@ -4,19 +4,23 @@
 //
 // Contributor:
 // - Aaron Meihm ameihm@mozilla.com
+
 package scribe
 
 import (
 	"fmt"
 )
 
-// Describes a scribe document for interpretation. This structure represents
-// the root of a description for analysis.
+// A scribe document. Contains all tests and other information used to execute
+// the document.
 type Document struct {
 	Variables []Variable `json:"variables"`
 	Tests     []Test     `json:"tests"`
 }
 
+// Validate a scribe document for consistency. This identifies any errors in
+// the document that are not JSON syntax related, including missing fields or
+// references to tests that do not exist. Returns an error if validation fails.
 func (d *Document) Validate() error {
 	for i := range d.Tests {
 		err := d.Tests[i].validate(d)

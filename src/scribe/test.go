@@ -4,6 +4,7 @@
 //
 // Contributor:
 // - Aaron Meihm ameihm@mozilla.com
+
 package scribe
 
 import (
@@ -24,18 +25,20 @@ type Test struct {
 
 	Expected bool `json:"expectedresult"`
 
-	// true if test has been prepared
+	// true if test has been prepared.
 	prepared bool
 
-	// true if test has been evaluated at least once
+	// true if test has been evaluated at least once.
 	evaluated bool
 
 	// The last error condition encountered during preparation
-	// or execution.
+	// or execution. nil if no error occurred.
 	Err error
 
 	// The final result for this test, a rolled up version of the results
-	// of this test for any identified candidates.
+	// of this test for any identified candidates. If at least one
+	// candidate for the test evaluated to true, the master result will be
+	// true.
 	MasterResult bool
 	// true if any candidates for this test returned a true result.
 	HasTrueResults bool
@@ -48,15 +51,21 @@ type Test struct {
 // EvaluationResult present in the results of a test, if the source
 // information returned more than one matching object.
 type EvaluationResult struct {
+	// The criteria used during evaluation.
 	Criteria EvaluationCriteria
-	Result   bool
+	// The result of the evaluation.
+	Result bool
 }
 
 // Generic criteria for an evaluation. A source object should always support
 // conversion from the specific type to a set of evaluation criteria.
 type EvaluationCriteria struct {
+	// An identifier used to track the source of a failed evaluation. For
+	// example, this may be a filename, if the TestValue is content from
+	// the file.
 	Identifier string
-	TestValue  string
+	// The actual test data used in the evaluator.
+	TestValue string
 }
 
 type genericSource interface {
@@ -118,6 +127,8 @@ func (t *Test) validate(d *Document) error {
 	return nil
 }
 
+// Return a set of evaluation results for a given test. Returns an error if an
+// error occured during test preparation or execution.
 func (t *Test) GetResults() ([]EvaluationResult, error) {
 	if t.Err != nil {
 		return nil, t.Err

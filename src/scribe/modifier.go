@@ -4,6 +4,7 @@
 //
 // Contributor:
 // - Aaron Meihm ameihm@mozilla.com
+
 package scribe
 
 import (
