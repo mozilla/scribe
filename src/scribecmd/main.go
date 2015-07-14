@@ -58,6 +58,7 @@ func main() {
 		docpath      string
 		expectedExit bool
 		testHooks    bool
+		showVersion  bool
 	)
 
 	err := scribe.Bootstrap()
@@ -70,7 +71,13 @@ func main() {
 	flag.BoolVar(&expectedExit, "e", false, "exit if result is unexpected")
 	flag.StringVar(&docpath, "f", "", "path to document")
 	flag.BoolVar(&testHooks, "t", false, "enable test hooks")
+	flag.BoolVar(&showVersion, "v", false, "show version")
 	flag.Parse()
+
+	if showVersion {
+		fmt.Fprintf(os.Stdout, "scribe %v\n", scribe.Version)
+		os.Exit(0)
+	}
 
 	if flagDebug {
 		scribe.SetDebug(true, os.Stderr)

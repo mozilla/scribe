@@ -18,6 +18,8 @@ type runtime struct {
 	testHooks   bool
 }
 
+const Version = "0.5"
+
 var sRuntime runtime
 
 func (r *runtime) initialize() {
