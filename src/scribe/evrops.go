@@ -20,6 +20,7 @@ import (
 // series of tests but there are likely to be some edge cases and certain
 // scenarios it does not handle.
 
+// EVR operation constants
 const (
 	_ = iota
 	EVROP_LESS_THAN
@@ -27,7 +28,7 @@ const (
 	EVROP_UNKNOWN
 )
 
-type EVR struct {
+type evr struct {
 	epoch   string
 	version string
 	release string
@@ -67,8 +68,8 @@ func evrIsNumber(s string) bool {
 	}
 }
 
-func evrExtract(s string) (EVR, error) {
-	var ret EVR
+func evrExtract(s string) (evr, error) {
+	var ret evr
 	var idx int
 
 	for _, c := range s {
@@ -228,7 +229,7 @@ func evrRpmVerCmp(actual string, check string) int {
 	return 0
 }
 
-func evrRpmCompare(actual EVR, check EVR) (int, error) {
+func evrRpmCompare(actual evr, check evr) (int, error) {
 	aepoch, err := strconv.Atoi(actual.epoch)
 	if err != nil {
 		return 0, fmt.Errorf("evrRpmCompare: bad actual epoch")
