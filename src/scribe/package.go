@@ -6,6 +6,10 @@
 // - Aaron Meihm ameihm@mozilla.com
 package scribe
 
+import (
+	"fmt"
+)
+
 type Package struct {
 	Name    string `json:"name"`
 	pkgInfo []PackageInfo
@@ -14,6 +18,13 @@ type Package struct {
 type PackageInfo struct {
 	Name    string
 	Version string
+}
+
+func (p *Package) validate() error {
+	if len(p.Name) == 0 {
+		return fmt.Errorf("package must specify name")
+	}
+	return nil
 }
 
 func (p *Package) getCriteria() (ret []EvaluationCriteria) {

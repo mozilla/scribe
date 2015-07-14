@@ -7,6 +7,7 @@
 package scribe
 
 import (
+	"fmt"
 	"regexp"
 )
 
@@ -20,6 +21,16 @@ type FileName struct {
 type nameMatch struct {
 	path  string
 	match string
+}
+
+func (f *FileName) validate() error {
+	if len(f.Path) == 0 {
+		return fmt.Errorf("filename path must be set")
+	}
+	if len(f.File) == 0 {
+		return fmt.Errorf("filename file must be set")
+	}
+	return nil
 }
 
 func (f *FileName) expandVariables(v []Variable) {

@@ -81,6 +81,13 @@ func (c *ConcatModifier) prepare() error {
 	return nil
 }
 
+func (c *ConcatModifier) validate() error {
+	if len(c.Operator) == 0 {
+		return fmt.Errorf("must specify concat operator")
+	}
+	return nil
+}
+
 func (c *ConcatModifier) expandVariables(v []Variable) {
 }
 

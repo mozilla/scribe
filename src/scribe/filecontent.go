@@ -34,6 +34,27 @@ type matchLine struct {
 	groups    []string
 }
 
+func (f *FileContent) validate() error {
+	if len(f.Path) == 0 {
+		return fmt.Errorf("filecontent path must be set")
+	}
+	if len(f.File) == 0 {
+		return fmt.Errorf("filecontent file must be set")
+	}
+	_, err := regexp.Compile(f.File)
+	if err != nil {
+		return err
+	}
+	if len(f.Expression) == 0 {
+		return fmt.Errorf("filecontent expression must be set")
+	}
+	_, err = regexp.Compile(f.Expression)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (f *FileContent) expandVariables(v []Variable) {
 	f.Path = variableExpansion(v, f.Path)
 	f.File = variableExpansion(v, f.File)

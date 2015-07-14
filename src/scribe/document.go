@@ -18,8 +18,8 @@ type Document struct {
 }
 
 func (d *Document) Validate() error {
-	for _, x := range d.Tests {
-		err := x.validate(d)
+	for i := range d.Tests {
+		err := d.Tests[i].validate(d)
 		if err != nil {
 			return err
 		}

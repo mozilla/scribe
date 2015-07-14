@@ -63,6 +63,7 @@ type genericSource interface {
 	prepare() error
 	getCriteria() []EvaluationCriteria
 	expandVariables([]Variable)
+	validate() error
 }
 
 type genericEvaluator interface {
@@ -76,8 +77,13 @@ func (t *Test) validate(d *Document) error {
 	if len(t.Identifier) == 0 {
 		return fmt.Errorf("%v: no identifier", t.Name)
 	}
-	if t.getSourceInterface() == nil {
+	si := t.getSourceInterface()
+	if si == nil {
 		return fmt.Errorf("%v: no valid source interface", t.Name)
+	}
+	err := si.validate()
+	if err != nil {
+		return fmt.Errorf("%v: %v", t.Name, err)
 	}
 	if t.getEvaluationInterface() == nil {
 		return fmt.Errorf("%v: no valid evaluation interface", t.Name)
@@ -88,9 +94,12 @@ func (t *Test) validate(d *Document) error {
 		}
 	}
 	for _, x := range t.If {
-		_, err := d.getTest(x)
+		ptr, err := d.getTest(x)
 		if err != nil {
 			return fmt.Errorf("%v: %v", t.Name, err)
+		}
+		if ptr == t {
+			return fmt.Errorf("%v: test cannot reference itself", t.Name)
 		}
 	}
 	return nil
