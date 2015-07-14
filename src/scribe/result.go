@@ -68,6 +68,35 @@ func GetResults(d Document, name string) (TestResult, error) {
 	return ret, nil
 }
 
+// A helper function to convert Testresult r into greppable single line
+// results.
+func GrepResult(r TestResult) string {
+	lns := make([]string, 0)
+
+	rs := "[error]"
+	if r.Error == "" {
+		if r.MasterResult {
+			rs = "[true]"
+		} else {
+			rs = "[false]"
+		}
+	}
+	buf := fmt.Sprintf("master %v name:\"%v\" hastrue:%v error:\"%v\"", rs, r.Name, r.HasTrueResults, r.Error)
+	lns = append(lns, buf)
+
+	for _, x := range r.Results {
+		if x.Result {
+			rs = "[true]"
+		} else {
+			rs = "[false]"
+		}
+		buf := fmt.Sprintf("sub %v name:\"%v\" identifier:\"%v\"", rs, r.Name, x.Identifier)
+		lns = append(lns, buf)
+	}
+
+	return strings.Join(lns, "\n") + "\n"
+}
+
 // A helper function to convert TestResult r into a human readable result
 // suitable for display.
 func HumanResult(r TestResult) string {

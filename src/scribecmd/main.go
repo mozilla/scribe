@@ -26,6 +26,7 @@ func main() {
 		expectedExit bool
 		testHooks    bool
 		showVersion  bool
+		lineFmt      bool
 	)
 
 	err := scribe.Bootstrap()
@@ -37,6 +38,7 @@ func main() {
 	flag.BoolVar(&flagDebug, "d", false, "enable debugging")
 	flag.BoolVar(&expectedExit, "e", false, "exit if result is unexpected")
 	flag.StringVar(&docpath, "f", "", "path to document")
+	flag.BoolVar(&lineFmt, "l", false, "output one result per line")
 	flag.BoolVar(&testHooks, "t", false, "enable test hooks")
 	flag.BoolVar(&showVersion, "v", false, "show version")
 	flag.Parse()
@@ -89,7 +91,13 @@ func main() {
 			fmt.Fprintf(os.Stderr, "error obtaining results for \"%v\": %v\n", x, err)
 			continue
 		}
-		fmt.Fprintf(os.Stdout, "%v", scribe.HumanResult(tr))
+		var s string
+		if lineFmt {
+			s = scribe.GrepResult(tr)
+		} else {
+			s = scribe.HumanResult(tr)
+		}
+		fmt.Fprintf(os.Stdout, "%v", s)
 	}
 
 	os.Exit(0)
