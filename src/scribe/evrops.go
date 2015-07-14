@@ -287,7 +287,10 @@ func evrCompare(op int, actual string, check string) (bool, error) {
 	return false, fmt.Errorf("evrCompare: unknown operator")
 }
 
-// Exported version of evrCompare() used for testing in evrtest.
+// An exported version of the EVR comparison operation. op is used to specify
+// an EVR comparison operation (e.g., EVROP_LESS_THAN). actual and check are
+// the version strings to test. Returns status of test evaluation, or an error
+// if an error occurs.
 func TestEvrCompare(op int, actual string, check string) (bool, error) {
 	return evrCompare(op, actual, check)
 }
