@@ -47,7 +47,7 @@ type TestSubResult struct {
 
 // Return test results for a given test. Returns an error if an
 // error occured during test preparation or execution.
-func GetResults(d Document, name string) (TestResult, error) {
+func GetResults(d *Document, name string) (TestResult, error) {
 	t, err := d.getTest(name)
 	if err != nil {
 		return TestResult{}, err

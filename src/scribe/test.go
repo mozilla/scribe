@@ -275,7 +275,7 @@ func (t *test) runTest(d *Document) error {
 	// validate it and call the handler if required.
 	if sRuntime.excall != nil {
 		if t.masterResult != t.Expected {
-			tr, err := GetResults(*d, t.Name)
+			tr, err := GetResults(d, t.Name)
 			if err != nil {
 				panic("GetResults() in expected handler")
 			}
