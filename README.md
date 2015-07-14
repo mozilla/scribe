@@ -26,3 +26,7 @@ It's primary purpose is integration with Mozilla MIG which allows
 investigators to perform system evaluation by sending a policy to the MIG
 agent for execution. It is also suited to executing policies as part of an
 instance build and testing process, or periodically on an installed system.
+
+Additional documentation
+------------------------
+Additional documentation on the library is available at [godoc.org](https://godoc.org/github.com/ameihm0912/scribe/src/scribe).
