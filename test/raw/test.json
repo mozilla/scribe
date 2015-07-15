@@ -1,0 +1,24 @@
+{
+	"tests": [
+	{
+		"name": "raw0",
+		"identifier": "test0",
+		"expectedresult": true,
+		"raw": {
+			"identifiers": [
+			{
+				"identifier": "an identifier",
+				"value": "VALUE"
+			},
+			{
+				"identifier": "another identifier",
+				"value": "TEST"
+			}
+			]
+		},
+		"regexp": {
+			"value": "TEST"
+		}
+	}
+	]
+}

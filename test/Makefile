@@ -1,4 +1,4 @@
-TESTDIRS = filecontent filename package concat evrtest
+TESTDIRS = filecontent filename package concat raw evrtest
 
 all:
 

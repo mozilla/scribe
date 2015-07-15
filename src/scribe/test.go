@@ -16,6 +16,7 @@ type test struct {
 	Identifier  string      `json:"identifier"`
 	Aliases     []string    `json:"aliases"`
 	Package     pkg         `json:"package"`
+	Raw         raw         `json:"raw"`
 	Modifier    modifier    `json:"modifier"`
 	FileContent filecontent `json:"filecontent"`
 	FileName    filename    `json:"filename"`
@@ -138,6 +139,8 @@ func (t *test) getSourceInterface() genericSource {
 		return &t.FileName
 	} else if t.Modifier.Concat.Operator != "" {
 		return &t.Modifier.Concat
+	} else if len(t.Raw.Identifiers) > 0 {
+		return &t.Raw
 	}
 	return nil
 }
