@@ -91,13 +91,13 @@ func main() {
 			fmt.Fprintf(os.Stderr, "error obtaining results for \"%v\": %v\n", x, err)
 			continue
 		}
-		var s string
 		if lineFmt {
-			s = scribe.GrepResult(tr)
+			for _, x := range tr.GrepResult() {
+				fmt.Fprintf(os.Stdout, "%v\n", x)
+			}
 		} else {
-			s = scribe.HumanResult(tr)
+			fmt.Fprintf(os.Stdout, "%v\n", tr.String())
 		}
-		fmt.Fprintf(os.Stdout, "%v", s)
 	}
 
 	os.Exit(0)

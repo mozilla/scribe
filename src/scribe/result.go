@@ -64,9 +64,10 @@ func GetResults(d *Document, name string) (TestResult, error) {
 	return ret, nil
 }
 
-// A helper function to convert Testresult r into greppable single line
-// results.
-func GrepResult(r TestResult) string {
+// A helper function to convert Testresult r into a slice of greppable single
+// line results. Note that each line returned is not terminated with a line
+// feed.
+func (r *TestResult) GrepResult() []string {
 	lns := make([]string, 0)
 
 	rs := "[error]"
@@ -90,12 +91,12 @@ func GrepResult(r TestResult) string {
 		lns = append(lns, buf)
 	}
 
-	return strings.Join(lns, "\n") + "\n"
+	return lns
 }
 
-// A helper function to convert TestResult r into a human readable result
+// A helper function to convert TestResult into a human readable result
 // suitable for display.
-func HumanResult(r TestResult) string {
+func (r *TestResult) String() string {
 	lns := make([]string, 0)
 	lns = append(lns, fmt.Sprintf("result for \"%v\"", r.Name))
 	if r.MasterResult {
@@ -115,5 +116,5 @@ func HumanResult(r TestResult) string {
 		buf := fmt.Sprintf("\t[%v] identifier: \"%v\"", x.Result, x.Identifier)
 		lns = append(lns, buf)
 	}
-	return strings.Join(lns, "\n") + "\n"
+	return strings.Join(lns, "\n")
 }
