@@ -15,34 +15,25 @@ import (
 // Describes the results of a test. The type can be marshaled into a JSON
 // string as required.
 type TestResult struct {
-	// The name of the test.
-	Name string `json:"name"`
-	// The identifier for the test.
-	Identifier string `json:"identifier"`
-	// Aliases for the test.
-	Aliases []string `json:"aliases"`
+	Name       string   `json:"name"`       // The name of the test.
+	Identifier string   `json:"identifier"` // The identifier for the test.
+	Aliases    []string `json:"aliases"`    // Aliases for the test.
 
-	// True if error encountered during evaluation.
-	IsError bool `json:"iserror"`
-	// Error associated with test.
-	Error string `json:"error"`
+	IsError bool   `json:"iserror"` // True of error is encountered during evaluation.
+	Error   string `json:"error"`   // Error associated with test.
 
-	// Master result of test.
-	MasterResult bool `json:"masterresult"`
-	// True if some source evaluations resulted in the test being true.
-	HasTrueResults bool `json:"hastrueresults"`
+	MasterResult   bool `json:"masterresult"`   // Master result of test.
+	HasTrueResults bool `json:"hastrueresults"` // True if > 0 evaluations resulted in true.
 
-	Results []TestSubResult `json:"results"`
+	Results []TestSubResult `json:"results"` // The sub-results for the test.
 }
 
 // For a given test, a number of sources can be identified that match the
 // criteria. For example, multiple files can be identifier with a given
 // filename. Each test tracks individual results for these cases.
 type TestSubResult struct {
-	// The result of evaluation for an identifier source.
-	Result bool `json:"result"`
-	// The identifier for the source.
-	Identifier string `json:"identifier"`
+	Result     bool   `json:"result"`     // The result of evaluation for an identifier source.
+	Identifier string `json:"identifier"` // The identifier for the source.
 }
 
 // Return test results for a given test. Returns an error if an

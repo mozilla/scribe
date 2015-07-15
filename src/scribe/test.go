@@ -25,48 +25,37 @@ type test struct {
 
 	Expected bool `json:"expectedresult"`
 
-	// true if test has been prepared.
-	prepared bool
+	prepared  bool // True if test has been prepared.
+	evaluated bool // True if test has been evaluated at least once.
 
-	// true if test has been evaluated at least once.
-	evaluated bool
-
-	// The last error condition encountered during preparation
-	// or execution. nil if no error occurred.
-	err error
+	err error // The last error condition encountered during preparation or execution.
 
 	// The final result for this test, a rolled up version of the results
 	// of this test for any identified candidates. If at least one
 	// candidate for the test evaluated to true, the master result will be
 	// true.
-	masterResult bool
-
-	// True if at least one result evaluated to true.
-	hasTrueResults bool
-
-	// Stores a slice of results for this test.
-	results []evaluationResult
+	masterResult   bool               // The final result for the test.
+	hasTrueResults bool               // True if at least one result evaluated to true.
+	results        []evaluationResult // A slice of results for the test.
 }
 
 // The result of evaluation of a test. There can be more then one
 // EvaluationResult present in the results of a test, if the source
 // information returned more than one matching object.
 type evaluationResult struct {
-	// The criteria used during evaluation.
-	criteria evaluationCriteria
-	// The result of the evaluation.
-	result bool
+	criteria evaluationCriteria // Criteria used during evaluation.
+	result   bool               // The result of the evaluation.
 }
 
 // Generic criteria for an evaluation. A source object should always support
 // conversion from the specific type to a set of evaluation criteria.
+//
+// An identifier is used to track the source of an evaluation. For example,
+// this may be a filename or a package name. In those examples, the testValue
+// may be matched content from the file, or a package version string.
 type evaluationCriteria struct {
-	// An identifier used to track the source of a failed evaluation. For
-	// example, this may be a filename, if the TestValue is content from
-	// the file.
-	identifier string
-	// The actual test data used in the evaluator.
-	testValue string
+	identifier string // The identifier used to track the source.
+	testValue  string // the actual test data passed to the evaluator.
 }
 
 type genericSource interface {
