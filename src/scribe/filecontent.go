@@ -122,6 +122,7 @@ type simpleFileLocator struct {
 	curDepth int
 	maxDepth int
 	matches  []string
+	locator  func(string, bool, string, int) ([]string, error)
 }
 
 func newSimpleFileLocator() (ret simpleFileLocator) {
@@ -129,6 +130,9 @@ func newSimpleFileLocator() (ret simpleFileLocator) {
 	ret.root = "/"
 	ret.maxDepth = 10
 	ret.matches = make([]string, 0)
+	if sRuntime.fileLocator != nil {
+		ret.locator = sRuntime.fileLocator
+	}
 	return ret
 }
 
@@ -137,6 +141,14 @@ func (s *simpleFileLocator) locate(target string, useRegexp bool) error {
 		return fmt.Errorf("locator has already been executed")
 	}
 	s.executed = true
+	if s.locator != nil {
+		buf, err := s.locator(target, useRegexp, s.root, s.maxDepth)
+		if err != nil {
+			return err
+		}
+		s.matches = buf
+		return nil
+	}
 	return s.locateInner(target, useRegexp, "")
 }
 

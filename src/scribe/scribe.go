@@ -16,6 +16,7 @@ type runtime struct {
 	debugWriter io.Writer
 	excall      func(TestResult)
 	testHooks   bool
+	fileLocator func(string, bool, string, int) ([]string, error)
 }
 
 const Version = "0.5"
@@ -42,6 +43,16 @@ func Bootstrap() (err error) {
 // immediately called with the applicable test as an argument.
 func ExpectedCallback(f func(TestResult)) {
 	sRuntime.excall = f
+}
+
+// Install an alternate file location function. This overrides use of the
+// SimpleFileLocator locate() function, and allows specification of an
+// alternate function to use for locating candidate files on the filesystem.
+//
+// This function is primarily used within the scribe mig module to make use
+// of the file module traversal function.
+func InstallFileLocator(f func(string, bool, string, int) ([]string, error)) {
+	sRuntime.fileLocator = f
 }
 
 // Enable or disable test hooks. If test hooks are enabled, certain functions
