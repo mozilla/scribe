@@ -33,6 +33,9 @@ func init() {
 // Bootstrap the scribe library. This function is currently not used but code
 // should call this function before any other functions in the library. An
 // error is returned if one occurs.
+//
+// Applications should call this as it may be mandatory in the future to do
+// more explicit initialization of the library outside of init().
 func Bootstrap() (err error) {
 	return err
 }
