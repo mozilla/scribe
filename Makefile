@@ -15,7 +15,12 @@ scribe:
 scribecmd:
 	$(GO) install scribecmd
 
-runtests: $(PROJS)
+runtests: scribetests gotests
+
+gotests:
+	$(GO) test -v scribe
+
+scribetests: $(PROJS)
 	cd test && $(MAKE) runtests
 
 clean:
