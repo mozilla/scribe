@@ -92,7 +92,7 @@ func main() {
 			continue
 		}
 		if lineFmt {
-			for _, x := range tr.GrepResult() {
+			for _, x := range tr.SingleLineResults() {
 				fmt.Fprintf(os.Stdout, "%v\n", x)
 			}
 		} else {

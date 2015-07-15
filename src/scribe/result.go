@@ -67,7 +67,7 @@ func GetResults(d *Document, name string) (TestResult, error) {
 // A helper function to convert Testresult r into a slice of greppable single
 // line results. Note that each line returned is not terminated with a line
 // feed.
-func (r *TestResult) GrepResult() []string {
+func (r *TestResult) SingleLineResults() []string {
 	lns := make([]string, 0)
 
 	rs := "[error]"
