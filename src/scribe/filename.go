@@ -68,6 +68,8 @@ func (f *filename) prepare() error {
 	}
 
 	for _, x := range sfl.matches {
+		// XXX x in this case is the entire path including the file
+		// name. We should be matching against only the file component.
 		mtch := re.FindStringSubmatch(x)
 		if len(mtch) < 2 {
 			continue
