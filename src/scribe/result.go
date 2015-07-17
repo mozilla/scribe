@@ -36,15 +36,12 @@ type TestSubResult struct {
 	Identifier string `json:"identifier"` // The identifier for the source.
 }
 
-// Return test results for a given test. Returns an error if an
-// error occured during test preparation or execution.
+// Return test results for a given test. Returns an error if for
+// some reason the results can not be returned.
 func GetResults(d *Document, name string) (TestResult, error) {
 	t, err := d.getTest(name)
 	if err != nil {
 		return TestResult{}, err
-	}
-	if t.err != nil {
-		return TestResult{}, t.err
 	}
 	ret := TestResult{}
 	ret.Name = t.Name
@@ -52,6 +49,8 @@ func GetResults(d *Document, name string) (TestResult, error) {
 	ret.Identifier = t.Identifier
 	if t.err != nil {
 		ret.Error = fmt.Sprintf("%v", t.err)
+		ret.IsError = true
+		return ret, nil
 	}
 	ret.MasterResult = t.masterResult
 	ret.HasTrueResults = t.hasTrueResults
@@ -71,7 +70,7 @@ func (r *TestResult) SingleLineResults() []string {
 	lns := make([]string, 0)
 
 	rs := "[error]"
-	if r.Error == "" {
+	if !r.IsError {
 		if r.MasterResult {
 			rs = "[true]"
 		} else {
@@ -108,8 +107,8 @@ func (r *TestResult) String() string {
 		}
 		lns = append(lns, buf)
 	}
-	if r.Error != "" {
-		buf := fmt.Sprintf("[error] error: %v", r.Error)
+	if r.IsError {
+		buf := fmt.Sprintf("\t[error] error: %v", r.Error)
 		lns = append(lns, buf)
 	}
 	for _, x := range r.Results {
