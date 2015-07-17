@@ -3,7 +3,7 @@ scribe
 
 scribe is a host policy evaluator written in Go.
 
-[![Build Status](https://travis-ci.org/ameihm0912/scribe.svg?branch=master)](https://travis-ci.org/ameihm0912/scribe)
+[![Build Status](https://travis-ci.org/mozilla/scribe.svg?branch=master)](https://travis-ci.org/mozilla/scribe)
 
 Overview
 --------
@@ -29,4 +29,4 @@ instance build and testing process, or periodically on an installed system.
 
 Additional documentation
 ------------------------
-Additional documentation on the library is available at [godoc.org](https://godoc.org/github.com/ameihm0912/scribe/src/scribe).
+Additional documentation on the library is available at [godoc.org](https://godoc.org/github.com/mozilla/scribe/src/scribe).
