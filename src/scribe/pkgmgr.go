@@ -25,6 +25,27 @@ type pkgmgrInfo struct {
 	pkgtype string
 }
 
+// Package information from the system as returned by QueryPackages().
+type PackageInfo struct {
+	Name    string `json:"name"`    // Package name.
+	Version string `json:"version"` // Package version.
+	Type    string `json:"type"`    // Package type.
+}
+
+// Query packages on the system, returning a slice of all identified packages
+// in PackageInfo form.
+func QueryPackages() []PackageInfo {
+	ret := make([]PackageInfo, 0)
+	for _, x := range getAllPackages().results {
+		np := PackageInfo{}
+		np.Name = x.name
+		np.Version = x.version
+		np.Type = x.pkgtype
+		ret = append(ret, np)
+	}
+	return ret
+}
+
 func getPackage(name string) (ret pkgmgrResult) {
 	ret.results = make([]pkgmgrInfo, 0)
 	if !pkgmgrInitialized {
@@ -40,6 +61,18 @@ func getPackage(name string) (ret pkgmgrResult) {
 	}
 	debugPrint("getPackage(): returning %v entries\n", len(ret.results))
 	return
+}
+
+func getAllPackages() pkgmgrResult {
+	ret := pkgmgrResult{}
+	ret.results = make([]pkgmgrInfo, 0)
+	if !pkgmgrInitialized {
+		pkgmgrInit()
+	}
+	for _, x := range pkgmgrCache {
+		ret.results = append(ret.results, x)
+	}
+	return ret
 }
 
 func pkgmgrInit() {
