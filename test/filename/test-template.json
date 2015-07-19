@@ -63,6 +63,16 @@
 		"regexp": {
 			"value": "1.2.3"
 		}
+	},
+
+	{
+		"name": "filename5",
+		"identifier": "test5",
+		"expectedresult": true,
+		"filename": {
+			"path": "${root}",
+			"file": "^(testfile0)$"
+		}
 	}
 
 	]
