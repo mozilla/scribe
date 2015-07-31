@@ -26,14 +26,14 @@ func (m *modifier) addMergeTarget(ms *modifierSource) {
 }
 
 type modifierSource struct {
-	Name   string `json:"name"`
-	Select string `json:"select"`
+	Identifier string `json:"identifier"`
+	Select     string `json:"select"`
 
 	criteria modifierData
 }
 
 func (m *modifierSource) selectCriteria(t *test) error {
-	debugPrint("selectCriteria(): modifier selecting criteria from \"%v\"\n", t.Name)
+	debugPrint("selectCriteria(): modifier selecting criteria from \"%v\"\n", t.Identifier)
 	// XXX Just support "all" for now, this could change to select specific
 	// elements of the source criteria slice.
 	if m.Select != "all" {
@@ -43,7 +43,7 @@ func (m *modifierSource) selectCriteria(t *test) error {
 	if s == nil {
 		return fmt.Errorf("source has no valid interface")
 	}
-	m.criteria.testName = t.Name
+	m.criteria.testName = t.Identifier
 	m.criteria.criteria = s.getCriteria()
 	debugPrint("selectCriteria(): copied %v criteria elements\n", len(m.criteria.criteria))
 	return nil

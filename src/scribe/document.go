@@ -31,11 +31,11 @@ func (d *Document) Validate() error {
 	return nil
 }
 
-// Return the names of all tests present in a document.
-func (d *Document) GetTestNames() []string {
+// Return the identifiers of all tests present in a document.
+func (d *Document) GetTestIdentifiers() []string {
 	ret := make([]string, 0)
 	for _, x := range d.Tests {
-		ret = append(ret, x.Name)
+		ret = append(ret, x.Identifier)
 	}
 	return ret
 }
@@ -54,19 +54,12 @@ func (d *Document) runTests() error {
 	return nil
 }
 
-// Return a pointer to a test instance. Will locate the test whos name matches
-// name, or has an alias that matches name.
-func (d *Document) getTest(name string) (*test, error) {
+// Return a pointer to a test instance of the test whose identifier matches
+func (d *Document) getTest(identifier string) (*test, error) {
 	for i := range d.Tests {
-		if d.Tests[i].Name == name {
+		if d.Tests[i].Identifier == identifier {
 			return &d.Tests[i], nil
 		}
-		for _, x := range d.Tests[i].Aliases {
-			if x == name {
-				return &d.Tests[i], nil
-			}
-		}
 	}
-
-	return nil, fmt.Errorf("unknown test \"%v\"", name)
+	return nil, fmt.Errorf("unknown test \"%v\"", identifier)
 }

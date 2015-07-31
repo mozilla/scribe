@@ -1,8 +1,7 @@
 {
 	"tests": [
 	{
-		"name": "package0",
-		"identifier": "test0",
+		"identifier": "package0",
 		"expectedresult": true,
 		"package": {
 			"name": "openssl"
@@ -10,8 +9,7 @@
 	},
 
 	{
-		"name": "package1",
-		"identifier": "test1",
+		"identifier": "package1",
 		"expectedresult": true,
 		"package": {
 			"name": "libbind"
@@ -23,8 +21,7 @@
 	},
 
 	{
-		"name": "package2",
-		"identifier": "test2",
+		"identifier": "package2",
 		"expectedresult": false,
 		"package": {
 			"name": "grub-common"
@@ -36,8 +33,7 @@
 	},
 
 	{
-		"name": "package3",
-		"identifier": "test3",
+		"identifier": "package3",
 		"expectedresult": false,
 		"package": {
 			"name": "grub-common"
@@ -49,8 +45,7 @@
 	},
 
 	{
-		"name": "package4",
-		"identifier": "test4",
+		"identifier": "package4",
 		"expectedresult": false,
 		"package": {
 			"name": "grub-common"
@@ -62,8 +57,7 @@
 	},
 
 	{
-		"name": "package5",
-		"identifier": "test5",
+		"identifier": "package5",
 		"expectedresult": false,
 		"package": {
 			"name": "grub-common"
@@ -76,8 +70,7 @@
 	},
 
 	{
-		"name": "package6",
-		"identifier": "test6",
+		"identifier": "package6",
 		"expectedresult": false,
 		"package": {
 			"name": "openssl"
