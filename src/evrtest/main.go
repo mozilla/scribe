@@ -35,17 +35,22 @@ func main() {
 		fmt.Printf("%v\n", buf)
 
 		var opmode int
-		s0 := strings.Fields(buf)
-		switch s0[0] {
+		fields := strings.Fields(buf)
+		if len(fields) != 3 {
+			fmt.Fprintf(os.Stderr, "invalid test string '%s'\n", buf)
+			os.Exit(1)
+		}
+		operator := fields[1]
+		switch operator {
 		case "=":
 			opmode = scribe.EVROP_EQUALS
 		case "<":
 			opmode = scribe.EVROP_LESS_THAN
 		default:
-			fmt.Fprintf(os.Stderr, "unknown operation %v\n", s0[0])
+			fmt.Fprintf(os.Stderr, "unknown operation %v\n", operator)
 			os.Exit(1)
 		}
-		result, err := scribe.TestEvrCompare(opmode, s0[1], s0[2])
+		result, err := scribe.TestEvrCompare(opmode, fields[0], fields[2])
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "ERROR %v\n", err)
 			os.Exit(2)
