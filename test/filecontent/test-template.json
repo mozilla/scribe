@@ -1,6 +1,6 @@
 {
 	"variables": [
-	{ "key": "root", "value": "<<t>>" }
+	{ "key": "root", "value": "REPLACE_IN_MAKEFILE" }
 	],
 
 	"tests": [
