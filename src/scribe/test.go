@@ -12,19 +12,18 @@ import (
 )
 
 type test struct {
-	Name        string      `json:"name"`
 	Identifier  string      `json:"identifier"`
-	Aliases     []string    `json:"aliases"`
-	Package     pkg         `json:"package"`
-	Raw         raw         `json:"raw"`
-	Modifier    modifier    `json:"modifier"`
-	FileContent filecontent `json:"filecontent"`
-	FileName    filename    `json:"filename"`
-	EVR         evrtest     `json:"evr"`
-	Regexp      regex       `json:"regexp"`
-	If          []string    `json:"if"`
+	Description string      `json:"description,omitempty"`
+	Package     pkg         `json:"package,omitempty"`
+	Raw         raw         `json:"raw,omitempty"`
+	Modifier    modifier    `json:"modifier,omitempty"`
+	FileContent filecontent `json:"filecontent,omitempty"`
+	FileName    filename    `json:"filename,omitempty"`
+	EVR         evrtest     `json:"evr,omitempty"`
+	Regexp      regex       `json:"regexp,omitempty"`
+	If          []string    `json:"if,omitempty"`
 
-	Expected bool `json:"expectedresult"`
+	Expected bool `json:"expectedresult,omitempty"`
 
 	prepared  bool // True if test has been prepared.
 	evaluated bool // True if test has been evaluated at least once.
@@ -72,47 +71,42 @@ type genericEvaluator interface {
 }
 
 func (t *test) validate(d *Document) error {
-	if len(t.Name) == 0 {
+	if len(t.Identifier) == 0 {
 		return fmt.Errorf("a test in document has no name")
 	}
 	if len(t.Identifier) == 0 {
-		return fmt.Errorf("%v: no identifier", t.Name)
+		return fmt.Errorf("%v: no identifier", t.Identifier)
 	}
 	si := t.getSourceInterface()
 	if si == nil {
-		return fmt.Errorf("%v: no valid source interface", t.Name)
+		return fmt.Errorf("%v: no valid source interface", t.Identifier)
 	}
 	err := si.validate()
 	if err != nil {
-		return fmt.Errorf("%v: %v", t.Name, err)
+		return fmt.Errorf("%v: %v", t.Identifier, err)
 	}
 	// If this is a modifier, ensure the modifier sources are valid.
 	if si.isModifier() {
 		for _, x := range t.Modifier.Sources {
-			_, err := d.getTest(x.Name)
+			_, err := d.getTest(x.Identifier)
 			if err != nil {
-				return fmt.Errorf("%v: %v", t.Name, err)
+				return fmt.Errorf("%v: %v", t.Identifier, err)
 			}
 			if x.Select != "all" {
-				return fmt.Errorf("%v: modifier source must include selector", t.Name)
+				return fmt.Errorf("%v: modifier source must include selector", t.Identifier)
 			}
 		}
 	}
 	if t.getEvaluationInterface() == nil {
-		return fmt.Errorf("%v: no valid evaluation interface", t.Name)
-	}
-	for _, x := range t.Aliases {
-		if len(x) == 0 {
-			return fmt.Errorf("%v: bad alias within test", t.Name)
-		}
+		return fmt.Errorf("%v: no valid evaluation interface", t.Identifier)
 	}
 	for _, x := range t.If {
 		ptr, err := d.getTest(x)
 		if err != nil {
-			return fmt.Errorf("%v: %v", t.Name, err)
+			return fmt.Errorf("%v: %v", t.Identifier, err)
 		}
 		if ptr == t {
-			return fmt.Errorf("%v: test cannot reference itself", t.Name)
+			return fmt.Errorf("%v: test cannot reference itself", t.Identifier)
 		}
 	}
 	return nil
@@ -153,9 +147,9 @@ func (t *test) prepare(d *Document) error {
 
 	// If this test is a modifier, prepare all the source tests first.
 	if len(t.Modifier.Sources) != 0 {
-		debugPrint("prepare(): readying modifier \"%v\"\n", t.Name)
+		debugPrint("prepare(): readying modifier \"%v\"\n", t.Identifier)
 		for i := range t.Modifier.Sources {
-			nm := t.Modifier.Sources[i].Name
+			nm := t.Modifier.Sources[i].Identifier
 			debugPrint("prepare(): preparing modifier source \"%v\"\n", nm)
 			dt, err := d.getTest(nm)
 			if err != nil {
@@ -200,7 +194,7 @@ func (t *test) runTest(d *Document) error {
 		return t.err
 	}
 
-	debugPrint("runTest(): running \"%v\"\n", t.Name)
+	debugPrint("runTest(): running \"%v\"\n", t.Identifier)
 	t.evaluated = true
 	// First, see if this test has any dependencies. If so, run those
 	// before we execute this one.
@@ -267,7 +261,7 @@ func (t *test) runTest(d *Document) error {
 	// validate it and call the handler if required.
 	if sRuntime.excall != nil {
 		if t.masterResult != t.Expected {
-			tr, err := GetResults(d, t.Name)
+			tr, err := GetResults(d, t.Identifier)
 			if err != nil {
 				panic("GetResults() in expected handler")
 			}

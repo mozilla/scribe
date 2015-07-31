@@ -53,7 +53,7 @@ func Example() {
 		return
 	}
 	// Grab the results for the test, most of the time you would loop
-	// through the results of GetTestNames() rather then call a result
+	// through the results of GetTestIdentifiers() rather then call a result
 	// directly.
 	result, err := scribe.GetResults(&doc, "example")
 	if err != nil {

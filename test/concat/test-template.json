@@ -5,8 +5,7 @@
 
 	"tests": [
 	{
-		"name": "filename0",
-		"identifier": "test0",
+		"identifier": "filename0",
 		"expectedresult": true,
 		"filecontent": {
 			"path": "${root}",
@@ -16,8 +15,7 @@
 	},
 
 	{
-		"name": "filename1",
-		"identifier": "test1",
+		"identifier": "filename1",
 		"expectedresult": true,
 		"filecontent": {
 			"path": "${root}",
@@ -27,8 +25,7 @@
 	},
 
 	{
-		"name": "modifier0",
-		"identifier": "test2",
+		"identifier": "modifier0",
 		"expectedresult": false,
 		"modifier": {
 			"concat": {
@@ -40,8 +37,7 @@
 	},
 
 	{
-		"name": "modifier1",
-		"identifier": "test3",
+		"identifier": "modifier1",
 		"expectedresult": true,
 		"modifier": {
 			"concat": {
@@ -49,7 +45,7 @@
 			},
 			"sources": [
 			{
-				"name": "filename0",
+				"identifier": "filename0",
 				"select": "all"
 			}
 			]
@@ -57,8 +53,7 @@
 	},
 
 	{
-		"name": "modifier2",
-		"identifier": "test4",
+		"identifier": "modifier2",
 		"expectedresult": true,
 		"modifier": {
 			"concat": {
@@ -66,7 +61,7 @@
 			},
 			"sources": [
 			{
-				"name": "filename0",
+				"identifier": "filename0",
 				"select": "all"
 			}
 			]
@@ -78,8 +73,7 @@
 	},
 
 	{
-		"name": "modifier3",
-		"identifier": "test5",
+		"identifier": "modifier3",
 		"expectedresult": true,
 		"modifier": {
 			"concat": {
@@ -87,7 +81,7 @@
 			},
 			"sources": [
 			{
-				"name": "filename0",
+				"identifier": "filename0",
 				"select": "all"
 			}
 			]
@@ -98,8 +92,7 @@
 	},
 
 	{
-		"name": "modifier4",
-		"identifier": "test6",
+		"identifier": "modifier4",
 		"expectedresult": true,
 		"modifier": {
 			"concat": {
@@ -107,11 +100,11 @@
 			},
 			"sources": [
 			{
-				"name": "filename0",
+				"identifier": "filename0",
 				"select": "all"
 			},
 			{
-				"name": "filename1",
+				"identifier": "filename1",
 				"select": "all"
 			}
 			]

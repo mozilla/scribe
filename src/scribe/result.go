@@ -44,8 +44,6 @@ func GetResults(d *Document, name string) (TestResult, error) {
 		return TestResult{}, err
 	}
 	ret := TestResult{}
-	ret.Name = t.Name
-	ret.Aliases = t.Aliases
 	ret.Identifier = t.Identifier
 	if t.err != nil {
 		ret.Error = fmt.Sprintf("%v", t.err)
@@ -77,7 +75,7 @@ func (r *TestResult) SingleLineResults() []string {
 			rs = "[false]"
 		}
 	}
-	buf := fmt.Sprintf("master %v name:\"%v\" hastrue:%v error:\"%v\"", rs, r.Name, r.HasTrueResults, r.Error)
+	buf := fmt.Sprintf("master %v name:\"%v\" hastrue:%v error:\"%v\"", rs, r.Identifier, r.HasTrueResults, r.Error)
 	lns = append(lns, buf)
 
 	for _, x := range r.Results {
@@ -86,7 +84,7 @@ func (r *TestResult) SingleLineResults() []string {
 		} else {
 			rs = "[false]"
 		}
-		buf := fmt.Sprintf("sub %v name:\"%v\" identifier:\"%v\"", rs, r.Name, x.Identifier)
+		buf := fmt.Sprintf("sub %v name:\"%v\" identifier:\"%v\"", rs, r.Identifier, x.Identifier)
 		lns = append(lns, buf)
 	}
 
@@ -97,7 +95,7 @@ func (r *TestResult) SingleLineResults() []string {
 // suitable for display.
 func (r *TestResult) String() string {
 	lns := make([]string, 0)
-	lns = append(lns, fmt.Sprintf("result for \"%v\"", r.Name))
+	lns = append(lns, fmt.Sprintf("result for \"%v\"", r.Identifier))
 	if r.MasterResult {
 		lns = append(lns, "\tmaster result: true")
 	} else {

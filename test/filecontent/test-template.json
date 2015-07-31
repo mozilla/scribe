@@ -5,9 +5,8 @@
 
 	"tests": [
 	{
-		"name": "simplecontent0",
-		"aliases": [ "no such file test" ],
-		"identifier": "test0",
+		"identifier": "simplecontent0",
+		"description": "no such file test",
 		"expectedresult": false,
 		"filecontent": {
 			"path": "${root}",
@@ -17,8 +16,7 @@
 	},
 
 	{
-		"name": "simplecontent1",
-		"identifier": "test1",
+		"identifier": "simplecontent1",
 		"expectedresult": true,
 		"filecontent": {
 			"path": "${root}",
@@ -28,8 +26,7 @@
 	},
 
 	{
-		"name": "simplecontent2",
-		"identifier": "test2",
+		"identifier": "simplecontent2",
 		"expectedresult": true,
 		"filecontent": {
 			"path": "${root}",
@@ -42,8 +39,7 @@
 	},
 
 	{
-		"name": "simplecontent3",
-		"identifier": "test3",
+		"identifier": "simplecontent3",
 		"expectedresult": true,
 		"filecontent": {
 			"path": "${root}",
@@ -56,8 +52,7 @@
 	},
 
 	{
-		"name": "filecontent0",
-		"identifier": "test4",
+		"identifier": "filecontent0",
 		"expectedresult": true,
 		"filecontent": {
 			"path": "${root}",
@@ -71,8 +66,7 @@
 	},
 
 	{
-		"name": "filecontent1",
-		"identifier": "test5",
+		"identifier": "filecontent1",
 		"expectedresult": false,
 		"filecontent": {
 			"path": "${root}",
@@ -83,12 +77,11 @@
 			"operation": "<",
 			"value": "0.6"
 		},
-		"if": [ "no such file test" ]
+		"if": [ "simplecontent0" ]
 	},
 
 	{
-		"name": "filecontent2",
-		"identifier": "test6",
+		"identifier": "filecontent2",
 		"expectedresult": true,
 		"filecontent": {
 			"path": "${root}",
@@ -103,9 +96,8 @@
 	},
 
 	{
-		"name": "filecontent3",
-		"aliases": [ "version is ok" ],
-		"identifier": "test5",
+		"identifier": "filecontent3",
+		"description": "version is ok",
 		"expectedresult": false,
 		"filecontent": {
 			"path": "${root}",
@@ -119,8 +111,7 @@
 	},
 
 	{
-		"name": "anyfile0",
-		"identifier": "test6",
+		"identifier": "anyfile0",
 		"expectedresult": true,
 		"filecontent": {
 			"path": "${root}/data",
