@@ -15,6 +15,7 @@ import (
 // the document.
 type Document struct {
 	Variables []variable `json:"variables"`
+	Objects   []object   `json:"objects"`
 	Tests     []test     `json:"tests"`
 }
 
@@ -31,23 +32,29 @@ func (d *Document) Validate() error {
 	return nil
 }
 
-// Return the identifiers of all tests present in a document.
+// Return the test IDs of all tests present in a document.
 func (d *Document) GetTestIdentifiers() []string {
 	ret := make([]string, 0)
 	for _, x := range d.Tests {
-		ret = append(ret, x.Identifier)
+		ret = append(ret, x.TestID)
 	}
 	return ret
 }
 
-func (d *Document) runTests() error {
-	// Note that prepare() and runTest() will return an error if something
-	// goes wrong, but we don't propagate this back. Errors within a test
-	// are kept localized in that test, and aren't considered to be a fatal
-	// condition.
-	for i := range d.Tests {
-		d.Tests[i].prepare(d)
+func (d *Document) prepareObjects() error {
+	// Note that prepare() will return an error if something goes wrong
+	// but we don't propagate this back. Errors within object preparation
+	// are kept localized to the object, and are not considered fatal to
+	// execution of the entire document.
+	for i := range d.Objects {
+		d.Objects[i].prepare(d)
 	}
+	return nil
+}
+
+func (d *Document) runTests() error {
+	// As documented prepareObjects(), we don't propagate errors here but
+	// instead keep them localized to the test.
 	for i := range d.Tests {
 		d.Tests[i].runTest(d)
 	}
@@ -55,11 +62,21 @@ func (d *Document) runTests() error {
 }
 
 // Return a pointer to a test instance of the test whose identifier matches
-func (d *Document) getTest(identifier string) (*test, error) {
+func (d *Document) getTest(testid string) (*test, error) {
 	for i := range d.Tests {
-		if d.Tests[i].Identifier == identifier {
+		if d.Tests[i].TestID == testid {
 			return &d.Tests[i], nil
 		}
 	}
-	return nil, fmt.Errorf("unknown test \"%v\"", identifier)
+	return nil, fmt.Errorf("unknown test \"%v\"", testid)
+}
+
+// Given an object name, return a generic source interface for the object.
+func (d *Document) getObjectInterface(obj string) (genericSource, error) {
+	for i := range d.Objects {
+		if d.Objects[i].Object == obj {
+			return d.Objects[i].getSourceInterface(), nil
+		}
+	}
+	return nil, fmt.Errorf("invalid object \"%v\"", obj)
 }

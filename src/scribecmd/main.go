@@ -16,7 +16,7 @@ import (
 var flagDebug bool
 
 func failExit(t scribe.TestResult) {
-	fmt.Fprintf(os.Stdout, "error: test result for \"%v\" was unexpected, exiting\n", t.Name)
+	fmt.Fprintf(os.Stdout, "error: test result for \"%v\" was unexpected, exiting\n", t.TestID)
 	os.Exit(2)
 }
 

@@ -30,6 +30,7 @@ func LoadDocument(r io.Reader) (Document, error) {
 	}
 
 	debugPrint("new document has %v test(s)\n", len(ret.Tests))
+	debugPrint("new document has %v object(s)\n", len(ret.Objects))
 	debugPrint("new document has %v variable(s)\n", len(ret.Variables))
 
 	debugPrint("validating document...\n")
@@ -49,6 +50,11 @@ func LoadDocument(r io.Reader) (Document, error) {
 // a fatal error condition. In these cases, the test itself will be marked
 // as having an error condition (stored in the Err field of the Test).
 func AnalyzeDocument(d Document) error {
+	debugPrint("preparing objects...\n")
+	err := d.prepareObjects()
+	if err != nil {
+		return err
+	}
 	debugPrint("analyzing document...\n")
 	return d.runTests()
 }

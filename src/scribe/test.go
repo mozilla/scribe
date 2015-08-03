@@ -12,16 +12,12 @@ import (
 )
 
 type test struct {
-	Identifier  string      `json:"identifier"`
-	Description string      `json:"description,omitempty"`
-	Package     pkg         `json:"package,omitempty"`
-	Raw         raw         `json:"raw,omitempty"`
-	Modifier    modifier    `json:"modifier,omitempty"`
-	FileContent filecontent `json:"filecontent,omitempty"`
-	FileName    filename    `json:"filename,omitempty"`
-	EVR         evrtest     `json:"evr,omitempty"`
-	Regexp      regex       `json:"regexp,omitempty"`
-	If          []string    `json:"if,omitempty"`
+	TestID      string   `json:"test"`
+	Object      string   `json:"object"`
+	Description string   `json:"description,omitempty"`
+	EVR         evrtest  `json:"evr,omitempty"`
+	Regexp      regex    `json:"regexp,omitempty"`
+	If          []string `json:"if,omitempty"`
 
 	Expected bool `json:"expectedresult,omitempty"`
 
@@ -58,52 +54,24 @@ type evaluationCriteria struct {
 	testValue  string // the actual test data passed to the evaluator.
 }
 
-type genericSource interface {
-	prepare() error
-	getCriteria() []evaluationCriteria
-	expandVariables([]variable)
-	validate() error
-	isModifier() bool
-}
-
 type genericEvaluator interface {
 	evaluate(evaluationCriteria) (evaluationResult, error)
 }
 
 func (t *test) validate(d *Document) error {
-	if len(t.Identifier) == 0 {
+	if len(t.TestID) == 0 {
 		return fmt.Errorf("a test in document has no identifier")
 	}
-	si := t.getSourceInterface()
-	if si == nil {
-		return fmt.Errorf("%v: no valid source interface", t.Identifier)
-	}
-	err := si.validate()
-	if err != nil {
-		return fmt.Errorf("%v: %v", t.Identifier, err)
-	}
-	// If this is a modifier, ensure the modifier sources are valid.
-	if si.isModifier() {
-		for _, x := range t.Modifier.Sources {
-			_, err := d.getTest(x.Identifier)
-			if err != nil {
-				return fmt.Errorf("%v: %v", t.Identifier, err)
-			}
-			if x.Select != "all" {
-				return fmt.Errorf("%v: modifier source must include selector", t.Identifier)
-			}
-		}
-	}
 	if t.getEvaluationInterface() == nil {
-		return fmt.Errorf("%v: no valid evaluation interface", t.Identifier)
+		return fmt.Errorf("%v: no valid evaluation interface", t.TestID)
 	}
 	for _, x := range t.If {
 		ptr, err := d.getTest(x)
 		if err != nil {
-			return fmt.Errorf("%v: %v", t.Identifier, err)
+			return fmt.Errorf("%v: %v", t.TestID, err)
 		}
 		if ptr == t {
-			return fmt.Errorf("%v: test cannot reference itself", t.Identifier)
+			return fmt.Errorf("%v: test cannot reference itself", t.TestID)
 		}
 	}
 	return nil
@@ -121,66 +89,6 @@ func (t *test) getEvaluationInterface() genericEvaluator {
 	return &noop{}
 }
 
-func (t *test) getSourceInterface() genericSource {
-	if t.Package.Name != "" {
-		return &t.Package
-	} else if t.FileContent.Path != "" {
-		return &t.FileContent
-	} else if t.FileName.Path != "" {
-		return &t.FileName
-	} else if t.Modifier.Concat.Operator != "" {
-		return &t.Modifier.Concat
-	} else if len(t.Raw.Identifiers) > 0 {
-		return &t.Raw
-	}
-	return nil
-}
-
-func (t *test) prepare(d *Document) error {
-	if t.prepared {
-		return nil
-	}
-	t.prepared = true
-
-	// If this test is a modifier, prepare all the source tests first.
-	if len(t.Modifier.Sources) != 0 {
-		debugPrint("prepare(): readying modifier \"%v\"\n", t.Identifier)
-		for i := range t.Modifier.Sources {
-			nm := t.Modifier.Sources[i].Identifier
-			debugPrint("prepare(): preparing modifier source \"%v\"\n", nm)
-			dt, err := d.getTest(nm)
-			if err != nil {
-				t.err = err
-				return t.err
-			}
-			err = dt.prepare(d)
-			if err != nil {
-				t.err = err
-				return t.err
-			}
-			err = t.Modifier.Sources[i].selectCriteria(dt)
-			if err != nil {
-				t.err = err
-				return t.err
-			}
-			t.Modifier.addMergeTarget(&t.Modifier.Sources[i])
-		}
-	}
-
-	p := t.getSourceInterface()
-	if p == nil {
-		t.err = fmt.Errorf("source has no valid interface")
-		return t.err
-	}
-	p.expandVariables(d.Variables)
-	err := p.prepare()
-	if err != nil {
-		t.err = err
-		return err
-	}
-	return nil
-}
-
 func (t *test) runTest(d *Document) error {
 	if t.evaluated {
 		return nil
@@ -191,7 +99,7 @@ func (t *test) runTest(d *Document) error {
 		return t.err
 	}
 
-	debugPrint("runTest(): running \"%v\"\n", t.Identifier)
+	debugPrint("runTest(): running \"%v\"\n", t.TestID)
 	t.evaluated = true
 	// First, see if this test has any dependencies. If so, run those
 	// before we execute this one.
@@ -213,7 +121,7 @@ func (t *test) runTest(d *Document) error {
 		t.err = fmt.Errorf("test has no valid evaluation interface")
 		return t.err
 	}
-	si := t.getSourceInterface()
+	si, _ := d.getObjectInterface(t.Object)
 	if si == nil {
 		t.err = fmt.Errorf("test has no valid source interface")
 		return t.err
@@ -258,7 +166,7 @@ func (t *test) runTest(d *Document) error {
 	// validate it and call the handler if required.
 	if sRuntime.excall != nil {
 		if t.masterResult != t.Expected {
-			tr, err := GetResults(d, t.Identifier)
+			tr, err := GetResults(d, t.TestID)
 			if err != nil {
 				panic("GetResults() in expected handler")
 			}
