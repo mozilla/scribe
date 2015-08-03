@@ -12,8 +12,8 @@ import (
 )
 
 type test struct {
-	TestID      string   `json:"test"`
-	Object      string   `json:"object"`
+	TestID      string   `json:"test"`   // The ID for this test.
+	Object      string   `json:"object"` // The object this test references.
 	Description string   `json:"description,omitempty"`
 	EVR         evrtest  `json:"evr,omitempty"`
 	Regexp      regex    `json:"regexp,omitempty"`

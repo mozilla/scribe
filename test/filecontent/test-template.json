@@ -3,11 +3,9 @@
 	{ "key": "root", "value": "REPLACE_IN_MAKEFILE" }
 	],
 
-	"tests": [
+	"objects": [
 	{
-		"identifier": "simplecontent0",
-		"description": "no such file test",
-		"expectedresult": false,
+		"object": "nosuchfile",
 		"filecontent": {
 			"path": "${root}",
 			"file": "nosuchfile",
@@ -16,8 +14,7 @@
 	},
 
 	{
-		"identifier": "simplecontent1",
-		"expectedresult": true,
+		"object": "testfile0-test",
 		"filecontent": {
 			"path": "${root}",
 			"file": "testfile0",
@@ -26,39 +23,78 @@
 	},
 
 	{
-		"identifier": "simplecontent2",
-		"expectedresult": true,
+		"object": "testfile0-all",
 		"filecontent": {
 			"path": "${root}",
 			"file": "testfile0",
 			"expression": "(.*)"
-		},
-		"regexp": {
-			"value": "Test"
 		}
 	},
 
 	{
-		"identifier": "simplecontent3",
-		"expectedresult": true,
+		"object": "testfile0-regex",
 		"filecontent": {
 			"path": "${root}",
 			"file": "testfile0",
 			"expression": "^(T\\S+).*"
-		},
+		}
+	},
+
+	{
+		"object": "testfile1-version",
+		"filecontent": {
+			"path": "${root}",
+			"file": ".*file1",
+			"expression": "^Version = (\\S+)"
+		}
+	},
+
+	{
+		"object": "anyfile",
+		"filecontent": {
+			"path": "${root}/data",
+			"file": ".*",
+			"expression": "(.*)"
+		}
+	}
+	],
+
+	"tests": [
+	{
+		"test": "simplecontent0",
+		"description": "test with nonexistent file",
+		"expectedresult": false,
+		"object": "nosuchfile"
+	},
+
+	{
+		"test": "simplecontent1",
+		"expectedresult": true,
+		"object": "testfile0-test"
+	},
+
+	{
+		"test": "simplecontent2",
+		"expectedresult": true,
+		"object": "testfile0-all",
 		"regexp": {
 			"value": "Test"
 		}
 	},
 
 	{
-		"identifier": "filecontent0",
+		"test": "simplecontent3",
 		"expectedresult": true,
-		"filecontent": {
-			"path": "${root}",
-			"file": ".*file1",
-			"expression": "^Version = (\\S+)"
-		},
+		"object": "testfile0-regex",
+		"regexp": {
+			"value": "Test"
+		}
+	},
+
+	{
+		"test": "filecontent0",
+		"expectedresult": true,
+		"object": "testfile1-version",
 		"evr": {
 			"operation": "<",
 			"value": "0.6"
@@ -66,13 +102,9 @@
 	},
 
 	{
-		"identifier": "filecontent1",
+		"test": "filecontent1",
 		"expectedresult": false,
-		"filecontent": {
-			"path": "${root}",
-			"file": ".*file1",
-			"expression": "^Version = (\\S+)"
-		},
+		"object": "testfile1-version",
 		"evr": {
 			"operation": "<",
 			"value": "0.6"
@@ -81,13 +113,9 @@
 	},
 
 	{
-		"identifier": "filecontent2",
+		"test": "filecontent2",
 		"expectedresult": true,
-		"filecontent": {
-			"path": "${root}",
-			"file": ".*file1",
-			"expression": "^Version = (\\S+)"
-		},
+		"object": "testfile1-version",
 		"evr": {
 			"operation": "<",
 			"value": "0.6"
@@ -96,14 +124,10 @@
 	},
 
 	{
-		"identifier": "filecontent3",
+		"test": "filecontent3",
 		"description": "version is ok",
 		"expectedresult": false,
-		"filecontent": {
-			"path": "${root}",
-			"file": ".*file1",
-			"expression": "^Version = (\\S+)"
-		},
+		"object": "testfile1-version",
 		"evr": {
 			"operation": "<",
 			"value": "0.4z"
@@ -111,13 +135,9 @@
 	},
 
 	{
-		"identifier": "anyfile0",
+		"test": "anyfile0",
 		"expectedresult": true,
-		"filecontent": {
-			"path": "${root}/data",
-			"file": ".*",
-			"expression": "(.*)"
-		}
+		"object": "anyfile"
 	}
 		
 	]
