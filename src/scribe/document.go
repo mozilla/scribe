@@ -23,6 +23,12 @@ type Document struct {
 // the document that are not JSON syntax related, including missing fields or
 // references to tests that do not exist. Returns an error if validation fails.
 func (d *Document) Validate() error {
+	for i := range d.Objects {
+		err := d.Objects[i].validate(d)
+		if err != nil {
+			return err
+		}
+	}
 	for i := range d.Tests {
 		err := d.Tests[i].validate(d)
 		if err != nil {
@@ -50,6 +56,19 @@ func (d *Document) prepareObjects() error {
 		d.Objects[i].prepare(d)
 	}
 	return nil
+}
+
+func (d *Document) objectPrepared(obj string) (bool, error) {
+	var objptr *object
+	for i := range d.Objects {
+		if d.Objects[i].Object == obj {
+			objptr = &d.Objects[i]
+		}
+	}
+	if objptr == nil {
+		return false, fmt.Errorf("unknown object \"%v\"", obj)
+	}
+	return objptr.prepared, nil
 }
 
 func (d *Document) runTests() error {

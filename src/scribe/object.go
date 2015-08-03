@@ -29,6 +29,21 @@ type genericSource interface {
 	validate() error
 }
 
+func (o *object) validate(d *Document) error {
+	if len(o.Object) == 0 {
+		return fmt.Errorf("an object in document has no identifier")
+	}
+	si := o.getSourceInterface()
+	if si == nil {
+		return fmt.Errorf("%v: no valid source interface", o.Object)
+	}
+	err := si.validate()
+	if err != nil {
+		return fmt.Errorf("%v: %v", o.Object, err)
+	}
+	return nil
+}
+
 func (o *object) getSourceInterface() genericSource {
 	if o.Package.Name != "" {
 		return &o.Package

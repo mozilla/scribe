@@ -12,12 +12,15 @@ import (
 )
 
 type test struct {
-	TestID      string   `json:"test"`   // The ID for this test.
-	Object      string   `json:"object"` // The object this test references.
-	Description string   `json:"description,omitempty"`
-	EVR         evrtest  `json:"evr,omitempty"`
-	Regexp      regex    `json:"regexp,omitempty"`
-	If          []string `json:"if,omitempty"`
+	TestID      string `json:"test"`   // The ID for this test.
+	Object      string `json:"object"` // The object this test references.
+	Description string `json:"description,omitempty"`
+
+	// Evaluators
+	EVR    evrtest `json:"evr,omitempty"`    // EVR version comparison
+	Regexp regex   `json:"regexp,omitempty"` // Regular expression comparison
+
+	If []string `json:"if,omitempty"` // Slice of test names for dependencies
 
 	Expected bool `json:"expectedresult,omitempty"`
 
@@ -119,6 +122,16 @@ func (t *test) runTest(d *Document) error {
 	ev := t.getEvaluationInterface()
 	if ev == nil {
 		t.err = fmt.Errorf("test has no valid evaluation interface")
+		return t.err
+	}
+	// Make sure the object is prepared before we use it.
+	flag, err := d.objectPrepared(t.Object)
+	if err != nil {
+		t.err = err
+		return t.err
+	}
+	if !flag {
+		t.err = fmt.Errorf("object not prepared")
 		return t.err
 	}
 	si, _ := d.getObjectInterface(t.Object)
