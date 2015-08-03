@@ -1,19 +1,38 @@
 {
-	"tests": [
+	"objects": [
 	{
-		"identifier": "package0",
-		"expectedresult": true,
+		"object": "openssl-package",
 		"package": {
 			"name": "openssl"
 		}
 	},
 
 	{
-		"identifier": "package1",
-		"expectedresult": true,
+		"object": "libbind-package",
 		"package": {
 			"name": "libbind"
-		},
+		}
+	},
+
+	{
+		"object": "grub-common-package",
+		"package": {
+			"name": "grub-common"
+		}
+	}
+	],
+
+	"tests": [
+	{
+		"test": "package0",
+		"expectedresult": true,
+		"object": "openssl-package"
+	},
+
+	{
+		"test": "package1",
+		"expectedresult": true,
+		"object": "libbind-package",
 		"evr": {
 			"operation": "=",
 			"value": "1:9.9.5.dfsg-4.3"
@@ -21,11 +40,9 @@
 	},
 
 	{
-		"identifier": "package2",
+		"test": "package2",
 		"expectedresult": false,
-		"package": {
-			"name": "grub-common"
-		},
+		"object": "grub-common-package",
 		"evr": {
 			"operation": "<",
 			"value": "2.02-beta1"
@@ -33,11 +50,9 @@
 	},
 
 	{
-		"identifier": "package3",
+		"test": "package3",
 		"expectedresult": false,
-		"package": {
-			"name": "grub-common"
-		},
+		"object": "grub-common-package",
 		"evr": {
 			"operation": "<",
 			"value": "2.02-beta2"
@@ -45,11 +60,9 @@
 	},
 
 	{
-		"identifier": "package4",
+		"test": "package4",
 		"expectedresult": false,
-		"package": {
-			"name": "grub-common"
-		},
+		"object": "grub-common-package",
 		"evr": {
 			"operation": "<",
 			"value": "2.01-beta2"
@@ -57,11 +70,9 @@
 	},
 
 	{
-		"identifier": "package5",
+		"test": "package5",
 		"expectedresult": false,
-		"package": {
-			"name": "grub-common"
-		},
+		"object": "grub-common-package",
 		"evr": {
 			"operation": "<",
 			"value": "2.02-beta3"
@@ -70,11 +81,9 @@
 	},
 
 	{
-		"identifier": "package6",
+		"test": "package6",
 		"expectedresult": false,
-		"package": {
-			"name": "openssl"
-		},
+		"object": "openssl-package",
 		"evr": {
 			"operation": "badop",
 			"value": "1.0.1e"

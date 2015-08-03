@@ -1,9 +1,7 @@
 {
-	"tests": [
+	"objects": [
 	{
-		"name": "raw0",
-		"identifier": "test0",
-		"expectedresult": true,
+		"object": "rawobject",
 		"raw": {
 			"identifiers": [
 			{
@@ -15,7 +13,15 @@
 				"value": "TEST"
 			}
 			]
-		},
+		}
+	}
+	],
+
+	"tests": [
+	{
+		"test": "test0",
+		"expectedresult": true,
+		"object": "rawobject",
 		"regexp": {
 			"value": "TEST"
 		}
