@@ -72,10 +72,7 @@ type genericEvaluator interface {
 
 func (t *test) validate(d *Document) error {
 	if len(t.Identifier) == 0 {
-		return fmt.Errorf("a test in document has no name")
-	}
-	if len(t.Identifier) == 0 {
-		return fmt.Errorf("%v: no identifier", t.Identifier)
+		return fmt.Errorf("a test in document has no identifier")
 	}
 	si := t.getSourceInterface()
 	if si == nil {
