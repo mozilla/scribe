@@ -3,11 +3,9 @@
 	{ "key": "root", "value": "REPLACE_IN_MAKEFILE" }
 	],
 
-	"tests": [
+	"objects": [
 	{
-		"name": "filename0",
-		"identifier": "test0",
-		"expectedresult": true,
+		"object": "anyfile",
 		"filename": {
 			"path": "${root}",
 			"file": "(.*)"
@@ -15,9 +13,7 @@
 	},
 
 	{
-		"name": "filename1",
-		"identifier": "test1",
-		"expectedresult": false,
+		"object": "nosuchfile",
 		"filename": {
 			"path": "${root}",
 			"file": ".*(nosuchfile).*"
@@ -25,13 +21,39 @@
 	},
 
 	{
-		"name": "filename2",
-		"identifier": "test2",
-		"expectedresult": true,
+		"object": "fileversion",
 		"filename": {
 			"path": "${root}",
 			"file": "file-(\\S+).txt"
-		},
+		}
+	},
+
+	{
+		"object": "testfile0",
+		"filename": {
+			"path": "${root}",
+			"file": "^(testfile0)$"
+		}
+	}
+	],
+
+	"tests": [
+	{
+		"test": "filename0",
+		"expectedresult": true,
+		"object": "anyfile"
+	},
+
+	{
+		"test": "filename1",
+		"expectedresult": false,
+		"object": "nosuchfile"
+	},
+
+	{
+		"test": "filename2",
+		"expectedresult": true,
+		"object": "fileversion",
 		"evr": {
 			"operation": "<",
 			"value": "1.6.0"
@@ -39,13 +61,9 @@
 	},
 
 	{
-		"name": "filename3",
-		"identifier": "test3",
+		"test": "filename3",
 		"expectedresult": false,
-		"filename": {
-			"path": "${root}",
-			"file": "file-(\\S+).txt"
-		},
+		"object": "fileversion",
 		"evr": {
 			"operation": "<",
 			"value": "1.1.0"
@@ -53,26 +71,18 @@
 	},
 
 	{
-		"name": "filename4",
-		"identifier": "test4",
+		"test": "filename4",
 		"expectedresult": true,
-		"filename": {
-			"path": "${root}",
-			"file": "file-(\\S+).txt"
-		},
+		"object": "fileversion",
 		"regexp": {
 			"value": "1.2.3"
 		}
 	},
 
 	{
-		"name": "filename5",
-		"identifier": "test5",
+		"test": "filename5",
 		"expectedresult": true,
-		"filename": {
-			"path": "${root}",
-			"file": "^(testfile0)$"
-		}
+		"object": "testfile0"
 	}
 
 	]
