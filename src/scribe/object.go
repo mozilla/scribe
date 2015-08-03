@@ -18,6 +18,7 @@ type object struct {
 	Package     pkg         `json:"package"`
 	Raw         raw         `json:"raw"`
 
+	isChain  bool  // True if object is part of an import chain.
 	prepared bool  // True if object has been prepared.
 	err      error // The last error condition encountered during preparation.
 }
@@ -25,8 +26,11 @@ type object struct {
 type genericSource interface {
 	prepare() error
 	getCriteria() []evaluationCriteria
+	isChain() bool
 	expandVariables([]variable)
 	validate() error
+	mergeCriteria([]evaluationCriteria)
+	fireChains(*Document) []evaluationCriteria
 }
 
 func (o *object) validate(d *Document) error {
@@ -44,6 +48,10 @@ func (o *object) validate(d *Document) error {
 	return nil
 }
 
+func (o *object) markChain() {
+	o.isChain = o.getSourceInterface().isChain()
+}
+
 func (o *object) getSourceInterface() genericSource {
 	if o.Package.Name != "" {
 		return &o.Package
@@ -57,7 +65,16 @@ func (o *object) getSourceInterface() genericSource {
 	return nil
 }
 
+func (o *object) fireChains(d *Document) {
+	si := o.getSourceInterface()
+	si.mergeCriteria(si.fireChains(d))
+}
+
 func (o *object) prepare(d *Document) error {
+	if o.isChain {
+		debugPrint("prepare(): skipping chain object \"%v\"\n", o.Object)
+		return nil
+	}
 	if o.prepared {
 		return nil
 	}

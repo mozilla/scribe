@@ -48,12 +48,21 @@ func (d *Document) GetTestIdentifiers() []string {
 }
 
 func (d *Document) prepareObjects() error {
+	// Mark any chain objects; these will be skipped during preparation
+	// as they are dependant on evaluation of the root object.
+	for i := range d.Objects {
+		d.Objects[i].markChain()
+	}
 	// Note that prepare() will return an error if something goes wrong
 	// but we don't propagate this back. Errors within object preparation
 	// are kept localized to the object, and are not considered fatal to
 	// execution of the entire document.
 	for i := range d.Objects {
 		d.Objects[i].prepare(d)
+	}
+	debugPrint("prepareObjects(): firing any import chains\n")
+	for i := range d.Objects {
+		d.Objects[i].fireChains(d)
 	}
 	return nil
 }

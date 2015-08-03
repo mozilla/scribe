@@ -25,11 +25,22 @@ func (p *pkg) isModifier() bool {
 	return false
 }
 
+func (p *pkg) isChain() bool {
+	return false
+}
+
 func (p *pkg) validate() error {
 	if len(p.Name) == 0 {
 		return fmt.Errorf("package must specify name")
 	}
 	return nil
+}
+
+func (p *pkg) fireChains(d *Document) []evaluationCriteria {
+	return nil
+}
+
+func (p *pkg) mergeCriteria(c []evaluationCriteria) {
 }
 
 func (p *pkg) getCriteria() (ret []evaluationCriteria) {

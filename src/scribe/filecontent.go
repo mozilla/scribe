@@ -13,6 +13,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 )
@@ -22,6 +23,8 @@ type filecontent struct {
 	File       string `json:"file"`
 	Expression string `json:"expression"`
 	Concat     string `json:"concat"`
+
+	ImportChain []string `json:"import-chain"`
 
 	matches []contentMatch
 }
@@ -55,6 +58,46 @@ func (f *filecontent) validate() error {
 		return err
 	}
 	return nil
+}
+
+func (f *filecontent) fireChains(d *Document) []evaluationCriteria {
+	if len(f.ImportChain) == 0 {
+		return nil
+	}
+	debugPrint("fireChains(): firing chains for filecontent object\n")
+	uids := make([]string, 0)
+	for _, x := range f.matches {
+		found := false
+		for _, y := range uids {
+			if x.path == y {
+				found = true
+				break
+			}
+		}
+		if found {
+			continue
+		}
+		uids = append(uids, x.path)
+	}
+	for _, x := range uids {
+		varlist := make([]variable, 0)
+		debugPrint("fireChains(): run for \"%v\"\n", x)
+
+		d, _ := path.Split(x)
+		newvar := variable{Key: "chain_root", Value: d}
+		varlist = append(varlist, newvar)
+	}
+	return nil
+}
+
+func (f *filecontent) mergeCriteria(c []evaluationCriteria) {
+}
+
+func (f *filecontent) isChain() bool {
+	if hasChainVariables(f.Path) {
+		return true
+	}
+	return false
 }
 
 func (f *filecontent) isModifier() bool {

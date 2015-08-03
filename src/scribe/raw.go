@@ -24,6 +24,17 @@ func (r *raw) isModifier() bool {
 	return false
 }
 
+func (r *raw) isChain() bool {
+	return false
+}
+
+func (r *raw) fireChains(d *Document) []evaluationCriteria {
+	return nil
+}
+
+func (r *raw) mergeCriteria(c []evaluationCriteria) {
+}
+
 func (r *raw) validate() error {
 	if len(r.Identifiers) == 0 {
 		return fmt.Errorf("at least one identifier must be present")

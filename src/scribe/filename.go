@@ -29,6 +29,17 @@ func (f *filename) isModifier() bool {
 	return false
 }
 
+func (f *filename) isChain() bool {
+	return false
+}
+
+func (f *filename) fireChains(d *Document) []evaluationCriteria {
+	return nil
+}
+
+func (f *filename) mergeCriteria(c []evaluationCriteria) {
+}
+
 func (f *filename) validate() error {
 	if len(f.Path) == 0 {
 		return fmt.Errorf("filename path must be set")

@@ -1,4 +1,4 @@
-TESTDIRS = filecontent filename package concat raw evrtest
+TESTDIRS = filecontent filename package concat raw import-chain evrtest
 
 all:
 
