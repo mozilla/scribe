@@ -21,6 +21,7 @@ type filecontent struct {
 	Path       string `json:"path"`
 	File       string `json:"file"`
 	Expression string `json:"expression"`
+	Concat     string `json:"concat"`
 
 	matches []contentMatch
 }
@@ -75,6 +76,9 @@ func (f *filecontent) getCriteria() (ret []evaluationCriteria) {
 				ret = append(ret, n)
 			}
 		}
+	}
+	if len(f.Concat) != 0 {
+		return criteriaConcat(ret, f.Concat)
 	}
 	return ret
 }
