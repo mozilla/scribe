@@ -16,10 +16,9 @@ import (
 func Example() {
 	docstr := `
 	{
-		"tests": [
+		"objects": [
 		{
-			"name": "example",
-			"identifier": "example",
+			"object": "raw",
 			"raw": {
 				"identifiers": [
 				{
@@ -27,7 +26,13 @@ func Example() {
 					"value": "Example"
 				}
 				]
-			},
+			}
+		}
+		],
+		"tests": [
+		{
+			"test": "example",
+			"object": "raw",
 			"regexp": {
 				"value": "Example"
 			}
