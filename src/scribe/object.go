@@ -83,7 +83,9 @@ func (o *object) fireChains(d *Document) error {
 		o.err = err
 		return err
 	}
-	si.mergeCriteria(criteria)
+	if criteria != nil {
+		si.mergeCriteria(criteria)
+	}
 	return nil
 }
 

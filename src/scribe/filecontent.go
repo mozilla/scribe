@@ -105,7 +105,9 @@ func (f *filecontent) fireChains(d *Document) ([]evaluationCriteria, error) {
 			if err != nil {
 				return nil, err
 			}
-			oc.mergeCriteria(criteria)
+			if criteria != nil {
+				oc.mergeCriteria(criteria)
+			}
 
 			// Extract the criteria. Rewrite the identifier based
 			// on what identifier was used for the chain.
