@@ -108,3 +108,15 @@ func (d *Document) getObjectInterface(obj string) (genericSource, error) {
 	}
 	return nil, fmt.Errorf("invalid object \"%v\"", obj)
 }
+
+// Given an object name, return a generic source interface to a copy of the
+// object.
+func (d *Document) getObjectInterfaceCopy(obj string) (genericSource, error) {
+	for i := range d.Objects {
+		if d.Objects[i].Object == obj {
+			newobj := d.Objects[i]
+			return newobj.getSourceInterface(), nil
+		}
+	}
+	return nil, fmt.Errorf("invalid object \"%v\"", obj)
+}

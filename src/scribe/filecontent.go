@@ -79,18 +79,44 @@ func (f *filecontent) fireChains(d *Document) []evaluationCriteria {
 		}
 		uids = append(uids, x.path)
 	}
+	ret := make([]evaluationCriteria, 0)
 	for _, x := range uids {
 		varlist := make([]variable, 0)
 		debugPrint("fireChains(): run for \"%v\"\n", x)
 
-		d, _ := path.Split(x)
-		newvar := variable{Key: "chain_root", Value: d}
+		// Build our variable list for the filecontent chain import.
+		dirent, _ := path.Split(x)
+		newvar := variable{Key: "chain_root", Value: dirent}
 		varlist = append(varlist, newvar)
+
+		// Execute each chain entry in order for each identifier.
+		for _, y := range f.ImportChain {
+			oc, _ := d.getObjectInterfaceCopy(y)
+			oc.expandVariables(varlist)
+			oc.prepare()
+
+			// Extract the criteria. Rewrite the identifier based
+			// on what identifier was used for the chain.
+			excri := oc.getCriteria()
+			for _, z := range excri {
+				z.identifier = x
+				ret = append(ret, z)
+			}
+		}
 	}
-	return nil
+	return ret
 }
 
 func (f *filecontent) mergeCriteria(c []evaluationCriteria) {
+	for _, x := range c {
+		nml := matchLine{}
+		nml.groups = make([]string, 0)
+		nml.groups = append(nml.groups, x.testValue)
+		ncm := contentMatch{}
+		ncm.path = x.identifier
+		ncm.matches = append(ncm.matches, nml)
+		f.matches = append(f.matches, ncm)
+	}
 }
 
 func (f *filecontent) isChain() bool {
