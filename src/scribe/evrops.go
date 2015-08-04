@@ -24,6 +24,7 @@ import (
 const (
 	_ = iota
 	EVROP_LESS_THAN
+	EVROP_GREATER_THAN
 	EVROP_EQUALS
 	EVROP_UNKNOWN
 )
@@ -38,6 +39,8 @@ func evrLookupOperation(s string) int {
 	switch s {
 	case "<":
 		return EVROP_LESS_THAN
+	case ">":
+		return EVROP_GREATER_THAN
 	case "=":
 		return EVROP_EQUALS
 	}
@@ -281,6 +284,11 @@ func evrCompare(op int, actual string, check string) (bool, error) {
 		return true, nil
 	case EVROP_LESS_THAN:
 		if ret == 1 {
+			return true, nil
+		}
+		return false, nil
+	case EVROP_GREATER_THAN:
+		if ret == -1 {
 			return true, nil
 		}
 		return false, nil

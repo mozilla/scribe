@@ -88,6 +88,16 @@
 			"operation": "badop",
 			"value": "1.0.1e"
 		}
+	},
+
+	{
+		"test": "package7",
+		"expectedresult": true,
+		"object": "openssl-package",
+		"evr": {
+			"operation": ">",
+			"value": "1.0.1d"
+		}
 	}
 	]
 }
