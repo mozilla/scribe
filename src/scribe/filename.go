@@ -40,7 +40,7 @@ func (f *filename) fireChains(d *Document) []evaluationCriteria {
 func (f *filename) mergeCriteria(c []evaluationCriteria) {
 }
 
-func (f *filename) validate() error {
+func (f *filename) validate(d *Document) error {
 	if len(f.Path) == 0 {
 		return fmt.Errorf("filename path must be set")
 	}

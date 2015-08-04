@@ -35,7 +35,7 @@ func (r *raw) fireChains(d *Document) []evaluationCriteria {
 func (r *raw) mergeCriteria(c []evaluationCriteria) {
 }
 
-func (r *raw) validate() error {
+func (r *raw) validate(d *Document) error {
 	if len(r.Identifiers) == 0 {
 		return fmt.Errorf("at least one identifier must be present")
 	}

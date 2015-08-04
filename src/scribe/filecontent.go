@@ -39,7 +39,7 @@ type matchLine struct {
 	groups    []string
 }
 
-func (f *filecontent) validate() error {
+func (f *filecontent) validate(d *Document) error {
 	if len(f.Path) == 0 {
 		return fmt.Errorf("filecontent path must be set")
 	}
@@ -54,6 +54,10 @@ func (f *filecontent) validate() error {
 		return fmt.Errorf("filecontent expression must be set")
 	}
 	_, err = regexp.Compile(f.Expression)
+	if err != nil {
+		return err
+	}
+	err = validateChains(f.ImportChain, d)
 	if err != nil {
 		return err
 	}

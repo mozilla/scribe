@@ -28,7 +28,7 @@ type genericSource interface {
 	getCriteria() []evaluationCriteria
 	isChain() bool
 	expandVariables([]variable)
-	validate() error
+	validate(d *Document) error
 	mergeCriteria([]evaluationCriteria)
 	fireChains(*Document) []evaluationCriteria
 }
@@ -41,7 +41,7 @@ func (o *object) validate(d *Document) error {
 	if si == nil {
 		return fmt.Errorf("%v: no valid source interface", o.Object)
 	}
-	err := si.validate()
+	err := si.validate(d)
 	if err != nil {
 		return fmt.Errorf("%v: %v", o.Object, err)
 	}

@@ -17,3 +17,13 @@ func hasChainVariables(arg string) bool {
 	}
 	return false
 }
+
+func validateChains(cl []string, d *Document) error {
+	for _, x := range cl {
+		_, err := d.getObjectInterface(x)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

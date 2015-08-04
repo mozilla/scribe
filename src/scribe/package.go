@@ -29,7 +29,7 @@ func (p *pkg) isChain() bool {
 	return false
 }
 
-func (p *pkg) validate() error {
+func (p *pkg) validate(d *Document) error {
 	if len(p.Name) == 0 {
 		return fmt.Errorf("package must specify name")
 	}
