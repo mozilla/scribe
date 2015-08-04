@@ -33,8 +33,8 @@ func (f *filename) isChain() bool {
 	return false
 }
 
-func (f *filename) fireChains(d *Document) []evaluationCriteria {
-	return nil
+func (f *filename) fireChains(d *Document) ([]evaluationCriteria, error) {
+	return nil, nil
 }
 
 func (f *filename) mergeCriteria(c []evaluationCriteria) {

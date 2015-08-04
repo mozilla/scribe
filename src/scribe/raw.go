@@ -28,8 +28,8 @@ func (r *raw) isChain() bool {
 	return false
 }
 
-func (r *raw) fireChains(d *Document) []evaluationCriteria {
-	return nil
+func (r *raw) fireChains(d *Document) ([]evaluationCriteria, error) {
+	return nil, nil
 }
 
 func (r *raw) mergeCriteria(c []evaluationCriteria) {

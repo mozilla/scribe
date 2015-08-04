@@ -36,8 +36,8 @@ func (p *pkg) validate(d *Document) error {
 	return nil
 }
 
-func (p *pkg) fireChains(d *Document) []evaluationCriteria {
-	return nil
+func (p *pkg) fireChains(d *Document) ([]evaluationCriteria, error) {
+	return nil, nil
 }
 
 func (p *pkg) mergeCriteria(c []evaluationCriteria) {

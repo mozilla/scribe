@@ -77,6 +77,11 @@ func (d *Document) objectPrepared(obj string) (bool, error) {
 	if objptr == nil {
 		return false, fmt.Errorf("unknown object \"%v\"", obj)
 	}
+	// If an error occurred while preparing this object, return that here
+	// and note preparation as false.
+	if objptr.err != nil {
+		return false, objptr.err
+	}
 	return objptr.prepared, nil
 }
 

@@ -30,7 +30,7 @@ type genericSource interface {
 	expandVariables([]variable)
 	validate(d *Document) error
 	mergeCriteria([]evaluationCriteria)
-	fireChains(*Document) []evaluationCriteria
+	fireChains(*Document) ([]evaluationCriteria, error)
 }
 
 func (o *object) validate(d *Document) error {
@@ -65,9 +65,26 @@ func (o *object) getSourceInterface() genericSource {
 	return nil
 }
 
-func (o *object) fireChains(d *Document) {
+func (o *object) fireChains(d *Document) error {
 	si := o.getSourceInterface()
-	si.mergeCriteria(si.fireChains(d))
+	// We only fire chains on root object types, not on chain entries
+	// themselves.
+	if si.isChain() {
+		return nil
+	}
+	// If the object already has encountered an error, don't bother
+	// trying to execute chain entries for it.
+	if o.err != nil {
+		debugPrint("fireChains(): skipping failed object \"%v\"\n", o.Object)
+		return nil
+	}
+	criteria, err := si.fireChains(d)
+	if err != nil {
+		o.err = err
+		return err
+	}
+	si.mergeCriteria(criteria)
+	return nil
 }
 
 func (o *object) prepare(d *Document) error {

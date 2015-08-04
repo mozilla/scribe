@@ -64,9 +64,9 @@ func (f *filecontent) validate(d *Document) error {
 	return nil
 }
 
-func (f *filecontent) fireChains(d *Document) []evaluationCriteria {
+func (f *filecontent) fireChains(d *Document) ([]evaluationCriteria, error) {
 	if len(f.ImportChain) == 0 {
-		return nil
+		return nil, nil
 	}
 	debugPrint("fireChains(): firing chains for filecontent object\n")
 	uids := make([]string, 0)
@@ -97,8 +97,15 @@ func (f *filecontent) fireChains(d *Document) []evaluationCriteria {
 		for _, y := range f.ImportChain {
 			oc, _ := d.getObjectInterfaceCopy(y)
 			oc.expandVariables(varlist)
-			oc.prepare()
-			oc.mergeCriteria(oc.fireChains(d))
+			err := oc.prepare()
+			if err != nil {
+				return nil, err
+			}
+			criteria, err := oc.fireChains(d)
+			if err != nil {
+				return nil, err
+			}
+			oc.mergeCriteria(criteria)
 
 			// Extract the criteria. Rewrite the identifier based
 			// on what identifier was used for the chain.
@@ -109,7 +116,7 @@ func (f *filecontent) fireChains(d *Document) []evaluationCriteria {
 			}
 		}
 	}
-	return ret
+	return ret, nil
 }
 
 func (f *filecontent) mergeCriteria(c []evaluationCriteria) {
