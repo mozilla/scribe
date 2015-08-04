@@ -94,6 +94,7 @@ func (f *filecontent) fireChains(d *Document) []evaluationCriteria {
 			oc, _ := d.getObjectInterfaceCopy(y)
 			oc.expandVariables(varlist)
 			oc.prepare()
+			oc.mergeCriteria(oc.fireChains(d))
 
 			// Extract the criteria. Rewrite the identifier based
 			// on what identifier was used for the chain.

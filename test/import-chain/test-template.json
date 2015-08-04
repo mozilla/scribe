@@ -20,7 +20,20 @@
 		"filecontent": {
 			"path": "${chain_root}",
 			"file": "testfile1",
-			"expression": "minor = (\\S+)"
+			"expression": "minor = (\\S+)",
+			"import-chain": [ "rawappend" ]
+		}
+	},
+
+	{
+		"object": "rawappend",
+		"raw": {
+			"identifiers": [
+			{
+				"identifier": "rawidentifier",
+				"value": "teststring"
+			}
+			]
 		}
 	}
 	],
@@ -29,7 +42,10 @@
 	{
 		"test": "testfile0-noop",
 		"expectedresult": true,
-		"object": "testfile0-combined"
+		"object": "testfile0-combined",
+		"regexp": {
+			"value": "^1.5.8.teststring$"
+		}
 	}
 	]
 }
