@@ -17,8 +17,9 @@ type test struct {
 	Description string `json:"description,omitempty"`
 
 	// Evaluators
-	EVR    evrtest `json:"evr,omitempty"`    // EVR version comparison
-	Regexp regex   `json:"regexp,omitempty"` // Regular expression comparison
+	EVR    evrtest    `json:"evr,omitempty"`        // EVR version comparison
+	Regexp regex      `json:"regexp,omitempty"`     // Regular expression comparison
+	EMatch exactmatch `json:"exactmatch,omitempty"` // Exact string match
 
 	If []string `json:"if,omitempty"` // Slice of test names for dependencies
 
@@ -85,6 +86,8 @@ func (t *test) getEvaluationInterface() genericEvaluator {
 		return &t.EVR
 	} else if t.Regexp.Value != "" {
 		return &t.Regexp
+	} else if t.EMatch.Value != "" {
+		return &t.EMatch
 	}
 	// If no evaluation criteria exists, use a no op evaluator
 	// which will always return true for the test if any source objects

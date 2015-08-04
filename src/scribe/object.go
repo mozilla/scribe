@@ -17,6 +17,7 @@ type object struct {
 	FileName    filename    `json:"filename"`
 	Package     pkg         `json:"package"`
 	Raw         raw         `json:"raw"`
+	HasLine     hasline     `json:"hasline"`
 
 	isChain  bool  // True if object is part of an import chain.
 	prepared bool  // True if object has been prepared.
@@ -61,6 +62,8 @@ func (o *object) getSourceInterface() genericSource {
 		return &o.FileName
 	} else if len(o.Raw.Identifiers) > 0 {
 		return &o.Raw
+	} else if o.HasLine.Path != "" {
+		return &o.HasLine
 	}
 	return nil
 }
