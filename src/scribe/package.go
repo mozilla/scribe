@@ -21,10 +21,6 @@ type packageInfo struct {
 	Version string
 }
 
-func (p *pkg) isModifier() bool {
-	return false
-}
-
 func (p *pkg) isChain() bool {
 	return false
 }

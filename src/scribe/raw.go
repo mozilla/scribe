@@ -20,10 +20,6 @@ type rawIdentifiers struct {
 	Value      string `json:"value"`
 }
 
-func (r *raw) isModifier() bool {
-	return false
-}
-
 func (r *raw) isChain() bool {
 	return false
 }

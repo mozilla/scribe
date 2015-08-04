@@ -57,10 +57,6 @@ func (h *hasline) isChain() bool {
 	return false
 }
 
-func (h *hasline) isModifier() bool {
-	return false
-}
-
 func (h *hasline) expandVariables(v []variable) {
 	h.Path = variableExpansion(v, h.Path)
 	h.File = variableExpansion(v, h.File)

@@ -25,10 +25,6 @@ type nameMatch struct {
 	match string
 }
 
-func (f *filename) isModifier() bool {
-	return false
-}
-
 func (f *filename) isChain() bool {
 	return false
 }

@@ -140,10 +140,6 @@ func (f *filecontent) isChain() bool {
 	return false
 }
 
-func (f *filecontent) isModifier() bool {
-	return false
-}
-
 func (f *filecontent) expandVariables(v []variable) {
 	f.Path = variableExpansion(v, f.Path)
 	f.File = variableExpansion(v, f.File)
