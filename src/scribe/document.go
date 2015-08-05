@@ -49,7 +49,10 @@ func (d *Document) GetTestIdentifiers() []string {
 
 func (d *Document) prepareObjects() error {
 	// Mark any chain objects; these will be skipped during preparation
-	// as they are dependant on evaluation of the root object.
+	// as they are dependant on evaluation of the root object. Chain
+	// objects are objects that contain chain variables; that is they
+	// cannot be evaluated as they depend on information being passed
+	// from the previous object in the chain.
 	for i := range d.Objects {
 		d.Objects[i].markChain()
 	}
