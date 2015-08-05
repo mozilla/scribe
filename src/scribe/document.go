@@ -114,7 +114,7 @@ func (d *Document) getObjectInterface(obj string) (genericSource, error) {
 			return d.Objects[i].getSourceInterface(), nil
 		}
 	}
-	return nil, fmt.Errorf("invalid object \"%v\"", obj)
+	return nil, fmt.Errorf("unknown object \"%v\"", obj)
 }
 
 // Given an object name, return a generic source interface to a copy of the
@@ -126,5 +126,5 @@ func (d *Document) getObjectInterfaceCopy(obj string) (genericSource, error) {
 			return newobj.getSourceInterface(), nil
 		}
 	}
-	return nil, fmt.Errorf("invalid object \"%v\"", obj)
+	return nil, fmt.Errorf("unknown object \"%v\"", obj)
 }
