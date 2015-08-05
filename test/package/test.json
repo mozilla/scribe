@@ -82,7 +82,7 @@
 
 	{
 		"test": "package6",
-		"expectedresult": false,
+		"expecterror": true,
 		"object": "openssl-package",
 		"evr": {
 			"operation": "badop",

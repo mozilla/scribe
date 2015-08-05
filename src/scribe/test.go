@@ -23,7 +23,12 @@ type test struct {
 
 	If []string `json:"if,omitempty"` // Slice of test names for dependencies
 
-	Expected bool `json:"expectedresult,omitempty"`
+	// These values are optional but can be set to use the expected result
+	// callback handler. These are primarily used for testing but can also
+	// be used to trigger scribecmd to return and a non-zero exit status
+	// if a test does not evaluate to the desired value.
+	ExpectedResult bool `json:"expectedresult,omitempty"` // Expected master result for test
+	ExpectError    bool `json:"expecterror,omitempty"`    // True if test should result in error
 
 	prepared  bool // True if test has been prepared.
 	evaluated bool // True if test has been evaluated at least once.
@@ -95,6 +100,20 @@ func (t *test) getEvaluationInterface() genericEvaluator {
 	return &noop{}
 }
 
+func (t *test) errorHandler(d *Document) error {
+	if sRuntime.excall == nil {
+		return t.err
+	}
+	if !t.ExpectError {
+		tr, err := GetResults(d, t.TestID)
+		if err != nil {
+			panic("GetResults() in errorHandler")
+		}
+		sRuntime.excall(tr)
+	}
+	return t.err
+}
+
 func (t *test) runTest(d *Document) error {
 	if t.evaluated {
 		return nil
@@ -113,40 +132,40 @@ func (t *test) runTest(d *Document) error {
 		dt, err := d.getTest(x)
 		if err != nil {
 			t.err = err
-			return t.err
+			return t.errorHandler(d)
 		}
 		err = dt.runTest(d)
 		if err != nil {
 			t.err = fmt.Errorf("a test dependency failed (\"%v\")", x)
-			return t.err
+			return t.errorHandler(d)
 		}
 	}
 
 	ev := t.getEvaluationInterface()
 	if ev == nil {
 		t.err = fmt.Errorf("test has no valid evaluation interface")
-		return t.err
+		return t.errorHandler(d)
 	}
 	// Make sure the object is prepared before we use it.
 	flag, err := d.objectPrepared(t.Object)
 	if err != nil {
 		t.err = err
-		return t.err
+		return t.errorHandler(d)
 	}
 	if !flag {
 		t.err = fmt.Errorf("object not prepared")
-		return t.err
+		return t.errorHandler(d)
 	}
 	si, _ := d.getObjectInterface(t.Object)
 	if si == nil {
 		t.err = fmt.Errorf("test has no valid source interface")
-		return t.err
+		return t.errorHandler(d)
 	}
 	for _, x := range si.getCriteria() {
 		res, err := ev.evaluate(x)
 		if err != nil {
 			t.err = err
-			return t.err
+			return t.errorHandler(d)
 		}
 		t.results = append(t.results, res)
 	}
@@ -170,7 +189,7 @@ func (t *test) runTest(d *Document) error {
 		if err != nil {
 			t.err = err
 			t.masterResult = false
-			return t.err
+			return t.errorHandler(d)
 		}
 		if !dt.masterResult {
 			t.masterResult = false
@@ -181,7 +200,8 @@ func (t *test) runTest(d *Document) error {
 	// See if there is a test expected result handler installed, if so
 	// validate it and call the handler if required.
 	if sRuntime.excall != nil {
-		if t.masterResult != t.Expected {
+		if (t.masterResult != t.ExpectedResult) ||
+			t.ExpectError {
 			tr, err := GetResults(d, t.TestID)
 			if err != nil {
 				panic("GetResults() in expected handler")
