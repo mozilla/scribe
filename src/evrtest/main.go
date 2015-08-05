@@ -46,6 +46,8 @@ func main() {
 			opmode = scribe.EVROP_EQUALS
 		case "<":
 			opmode = scribe.EVROP_LESS_THAN
+		case ">":
+			opmode = scribe.EVROP_GREATER_THAN
 		default:
 			fmt.Fprintf(os.Stderr, "unknown operation %v\n", operator)
 			os.Exit(1)
