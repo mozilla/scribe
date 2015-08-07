@@ -8,6 +8,7 @@
 package scribe
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 )
@@ -87,6 +88,15 @@ func (r *TestResult) SingleLineResults() []string {
 	}
 
 	return lns
+}
+
+// A helper function to convert TestResult into a JSON string.
+func (r *TestResult) JSON() string {
+	buf, err := json.Marshal(r)
+	if err != nil {
+		fmt.Sprintf("JSON encoding error: %v", err)
+	}
+	return string(buf)
 }
 
 // A helper function to convert TestResult into a human readable result

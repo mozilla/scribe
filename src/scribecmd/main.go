@@ -27,6 +27,7 @@ func main() {
 		testHooks    bool
 		showVersion  bool
 		lineFmt      bool
+		jsonFmt      bool
 	)
 
 	err := scribe.Bootstrap()
@@ -39,6 +40,7 @@ func main() {
 	flag.BoolVar(&expectedExit, "e", false, "exit if result is unexpected")
 	flag.StringVar(&docpath, "f", "", "path to document")
 	flag.BoolVar(&lineFmt, "l", false, "output one result per line")
+	flag.BoolVar(&jsonFmt, "j", false, "JSON output mode")
 	flag.BoolVar(&testHooks, "t", false, "enable test hooks")
 	flag.BoolVar(&showVersion, "v", false, "show version")
 	flag.Parse()
@@ -95,6 +97,8 @@ func main() {
 			for _, x := range tr.SingleLineResults() {
 				fmt.Fprintf(os.Stdout, "%v\n", x)
 			}
+		} else if jsonFmt {
+			fmt.Fprintf(os.Stdout, "%v\n", tr.JSON())
 		} else {
 			fmt.Fprintf(os.Stdout, "%v\n", tr.String())
 		}
