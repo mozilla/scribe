@@ -11,15 +11,15 @@ import (
 	"fmt"
 )
 
-type test struct {
+type Test struct {
 	TestID      string `json:"test"`   // The ID for this test.
 	Object      string `json:"object"` // The object this test references.
 	Description string `json:"description,omitempty"`
 
 	// Evaluators
-	EVR    evrtest    `json:"evr,omitempty"`        // EVR version comparison
-	Regexp regex      `json:"regexp,omitempty"`     // Regular expression comparison
-	EMatch exactmatch `json:"exactmatch,omitempty"` // Exact string match
+	EVR    EVRTest    `json:"evr,omitempty"`        // EVR version comparison
+	Regexp Regex      `json:"regexp,omitempty"`     // Regular expression comparison
+	EMatch ExactMatch `json:"exactmatch,omitempty"` // Exact string match
 
 	If []string `json:"if,omitempty"` // Slice of test names for dependencies
 
@@ -67,7 +67,7 @@ type genericEvaluator interface {
 	evaluate(evaluationCriteria) (evaluationResult, error)
 }
 
-func (t *test) validate(d *Document) error {
+func (t *Test) validate(d *Document) error {
 	if len(t.TestID) == 0 {
 		return fmt.Errorf("a test in document has no identifier")
 	}
@@ -86,7 +86,7 @@ func (t *test) validate(d *Document) error {
 	return nil
 }
 
-func (t *test) getEvaluationInterface() genericEvaluator {
+func (t *Test) getEvaluationInterface() genericEvaluator {
 	if t.EVR.Value != "" {
 		return &t.EVR
 	} else if t.Regexp.Value != "" {
@@ -100,7 +100,7 @@ func (t *test) getEvaluationInterface() genericEvaluator {
 	return &noop{}
 }
 
-func (t *test) errorHandler(d *Document) error {
+func (t *Test) errorHandler(d *Document) error {
 	if sRuntime.excall == nil {
 		return t.err
 	}
@@ -114,7 +114,7 @@ func (t *test) errorHandler(d *Document) error {
 	return t.err
 }
 
-func (t *test) runTest(d *Document) error {
+func (t *Test) runTest(d *Document) error {
 	if t.evaluated {
 		return nil
 	}

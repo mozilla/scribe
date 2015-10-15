@@ -7,11 +7,11 @@
 
 package scribe
 
-type exactmatch struct {
+type ExactMatch struct {
 	Value string `json:"value"`
 }
 
-func (e *exactmatch) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {
+func (e *ExactMatch) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {
 	debugPrint("evaluate(): exactmatch %v \"%v\", \"%v\"\n", c.identifier, c.testValue, e.Value)
 	ret.criteria = c
 	if c.testValue == e.Value {
