@@ -8,7 +8,7 @@
 package scribe
 
 type ExactMatch struct {
-	Value string `json:"value"`
+	Value string `json:"value,omitempty"`
 }
 
 func (e *ExactMatch) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {

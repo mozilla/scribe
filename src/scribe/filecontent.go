@@ -19,12 +19,12 @@ import (
 )
 
 type FileContent struct {
-	Path       string `json:"path"`
-	File       string `json:"file"`
-	Expression string `json:"expression"`
-	Concat     string `json:"concat"`
+	Path       string `json:"path,omitempty"`
+	File       string `json:"file,omitempty"`
+	Expression string `json:"expression,omitempty"`
+	Concat     string `json:"concat,omitempty"`
 
-	ImportChain []string `json:"import-chain"`
+	ImportChain []string `json:"import-chain,omitempty"`
 
 	matches []contentMatch
 }

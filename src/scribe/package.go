@@ -12,7 +12,7 @@ import (
 )
 
 type Pkg struct {
-	Name    string `json:"name"`
+	Name    string `json:"name,omitempty"`
 	pkgInfo []packageInfo
 }
 

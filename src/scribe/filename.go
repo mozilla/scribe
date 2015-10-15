@@ -14,8 +14,8 @@ import (
 )
 
 type FileName struct {
-	Path string `json:"path"`
-	File string `json:"file"`
+	Path string `json:"path,omitempty"`
+	File string `json:"file,omitempty"`
 
 	matches []nameMatch
 }

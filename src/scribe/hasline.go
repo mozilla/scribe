@@ -13,9 +13,9 @@ import (
 )
 
 type HasLine struct {
-	Path       string `json:"path"`
-	File       string `json:"file"`
-	Expression string `json:"expression"`
+	Path       string `json:"path,omitempty"`
+	File       string `json:"file,omitempty"`
+	Expression string `json:"expression,omitempty"`
 
 	matches []haslineStatus
 }

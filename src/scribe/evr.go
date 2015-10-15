@@ -12,8 +12,8 @@ import (
 )
 
 type EVRTest struct {
-	Operation string `json:"operation"`
-	Value     string `json:"value"`
+	Operation string `json:"operation,omitempty"`
+	Value     string `json:"value,omitempty"`
 }
 
 func (e *EVRTest) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {
