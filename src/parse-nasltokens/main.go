@@ -35,9 +35,9 @@ type releaseInformation struct {
 var releaseList = []releaseInformation{
 	{"UBUNTU14.10", "utopic", "14.10", ""},
 	{"UBUNTU15.04", "vivid", "15.04", ""},
-	{"UBUNTU14.04", "trusty", "14.04", ""},
-	{"UBUNTU12.04", "precise", "12.04", ""},
-	{"UBUNTU10.04", "lucid", "10.04", ""},
+	{"UBUNTU14.04 LTS", "trusty", "14.04", ""},
+	{"UBUNTU12.04 LTS", "precise", "12.04", ""},
+	{"UBUNTU10.04 LTS", "lucid", "10.04", ""},
 }
 
 func addReleaseDefinition(o *scribe.Document, rinfo *releaseInformation) {
