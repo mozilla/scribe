@@ -14,9 +14,9 @@ import (
 // A scribe document. Contains all tests and other information used to execute
 // the document.
 type Document struct {
-	Variables []Variable `json:"variables"`
-	Objects   []Object   `json:"objects"`
-	Tests     []Test     `json:"tests"`
+	Variables []Variable `json:"variables,omitempty"`
+	Objects   []Object   `json:"objects,omitempty"`
+	Tests     []Test     `json:"tests,omitempty"`
 }
 
 // Validate a scribe document for consistency. This identifies any errors in
