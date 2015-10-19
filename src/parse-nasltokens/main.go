@@ -25,19 +25,41 @@ type checkEntry struct {
 	op      string
 }
 
+type releaseProfile struct {
+	fdir       string
+	fname      string
+	expression string
+}
+
+var rProfileUbuntu = releaseProfile{
+	fdir:       "/etc",
+	fname:      "lsb-release",
+	expression: "DISTRIB_RELEASE=(\\d{1,2}\\.\\d{1,2})",
+}
+
+var rProfileRedHat = releaseProfile{
+	fdir:       "/etc",
+	fname:      "redhat-release",
+	expression: "release (\\d)\\.",
+}
+
 type releaseInformation struct {
 	nasldist   string
 	identifier string
 	lsbmatch   string
 	defid      string
+	profile    *releaseProfile
 }
 
 var releaseList = []releaseInformation{
-	{"UBUNTU14.10", "utopic", "14.10", ""},
-	{"UBUNTU15.04", "vivid", "15.04", ""},
-	{"UBUNTU14.04 LTS", "trusty", "14.04", ""},
-	{"UBUNTU12.04 LTS", "precise", "12.04", ""},
-	{"UBUNTU10.04 LTS", "lucid", "10.04", ""},
+	{"UBUNTU14.10", "utopic", "14.10", "", &rProfileUbuntu},
+	{"UBUNTU15.04", "vivid", "15.04", "", &rProfileUbuntu},
+	{"UBUNTU14.04 LTS", "trusty", "14.04", "", &rProfileUbuntu},
+	{"UBUNTU12.04 LTS", "precise", "12.04", "", &rProfileUbuntu},
+	{"UBUNTU10.04 LTS", "lucid", "10.04", "", &rProfileUbuntu},
+	{"RHENT_7", "rh7", "7", "", &rProfileRedHat},
+	{"RHENT_6", "rh6", "6", "", &rProfileRedHat},
+	{"RHENT_5", "rh5", "5", "", &rProfileRedHat},
 }
 
 func addReleaseDefinition(o *scribe.Document, rinfo *releaseInformation) {
@@ -46,9 +68,9 @@ func addReleaseDefinition(o *scribe.Document, rinfo *releaseInformation) {
 
 	obj := scribe.Object{}
 	obj.Object = identifier + "-object"
-	obj.FileContent.Path = "/etc"
-	obj.FileContent.File = "^lsb-release$"
-	obj.FileContent.Expression = "DISTRIB_RELEASE=(\\d{1,2}\\.\\d{1,2})"
+	obj.FileContent.Path = rinfo.profile.fdir
+	obj.FileContent.File = rinfo.profile.fname
+	obj.FileContent.Expression = rinfo.profile.expression
 
 	test := scribe.Test{}
 	test.TestID = identifier + "-test"
