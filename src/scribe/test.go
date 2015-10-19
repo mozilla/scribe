@@ -9,6 +9,7 @@ package scribe
 
 import (
 	"fmt"
+	"strings"
 )
 
 type Test struct {
@@ -20,6 +21,8 @@ type Test struct {
 	EVR    EVRTest    `json:"evr,omitempty"`        // EVR version comparison
 	Regexp Regex      `json:"regexp,omitempty"`     // Regular expression comparison
 	EMatch ExactMatch `json:"exactmatch,omitempty"` // Exact string match
+
+	Tags []string `json:"tags,omitempty"` // Tags associated with the test
 
 	If []string `json:"if,omitempty"` // Slice of test names for dependencies
 
@@ -81,6 +84,12 @@ func (t *Test) validate(d *Document) error {
 		}
 		if ptr == t {
 			return fmt.Errorf("%v: test cannot reference itself", t.TestID)
+		}
+	}
+	// Ensure the tags only contain valid characters
+	for _, x := range t.Tags {
+		if strings.ContainsRune(x, '"') {
+			return fmt.Errorf("%v: test tag cannot contain quote", t.TestID)
 		}
 	}
 	return nil
