@@ -309,7 +309,10 @@ func fileContentCheck(path string, regex string) ([]matchLine, error) {
 	rdr := bufio.NewReader(fd)
 	ret := make([]matchLine, 0)
 	for {
-		ln, err := rdr.ReadString('\n')
+		// XXX Ignore potential partial reads (prefix) here, for lines
+		// with excessive length we will just treat it as multiple
+		// lines
+		buf, _, err := rdr.ReadLine()
 		if err != nil {
 			if err == io.EOF {
 				break
@@ -317,6 +320,7 @@ func fileContentCheck(path string, regex string) ([]matchLine, error) {
 				return nil, err
 			}
 		}
+		ln := string(buf)
 		mtch := re.FindStringSubmatch(ln)
 		if len(mtch) > 0 {
 			newmatch := matchLine{}
