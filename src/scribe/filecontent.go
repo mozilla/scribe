@@ -235,6 +235,17 @@ func (s *simpleFileLocator) locate(target string, useRegexp bool) error {
 	return s.locateInner(target, useRegexp, "")
 }
 
+func (s *simpleFileLocator) symFollowIsRegular(path string) (bool, error) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	if fi.Mode().IsRegular() {
+		return true, nil
+	}
+	return false, nil
+}
+
 func (s *simpleFileLocator) locateInner(target string, useRegexp bool, path string) error {
 	var (
 		spath string
@@ -286,6 +297,22 @@ func (s *simpleFileLocator) locateInner(target string, useRegexp bool, path stri
 			} else {
 				if re.MatchString(x.Name()) {
 					s.matches = append(s.matches, fname)
+				}
+			}
+		} else if (x.Mode() & os.ModeSymlink) > 0 {
+			isregsym, err := s.symFollowIsRegular(fname)
+			if err != nil {
+				return err
+			}
+			if isregsym {
+				if !useRegexp {
+					if x.Name() == target {
+						s.matches = append(s.matches, fname)
+					}
+				} else {
+					if re.MatchString(x.Name()) {
+						s.matches = append(s.matches, fname)
+					}
 				}
 			}
 		}
