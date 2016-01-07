@@ -18,6 +18,7 @@ type UbuntuRelease struct {
 }
 
 var UbuntuReleases = []UbuntuRelease{
+	{"wily", "15.10"},
 	{"vivid", "15.04"},
 	{"utopic", "14.10"},
 	{"trusty", "14.04"},
