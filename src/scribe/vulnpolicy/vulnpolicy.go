@@ -28,6 +28,7 @@ type Vulnerability struct {
 type Metadata struct {
 	Description string   `json:"description"`
 	CVE         []string `json:"cve"`
+	CVSS        string   `json:"cvss"`
 }
 
 var testcntr int
@@ -68,10 +69,26 @@ func addTest(doc *scribe.Document, vuln Vulnerability) error {
 		vuln.Package, testcntr)
 	test := scribe.Test{}
 	test.TestID = testidstr
+	test.Description = vuln.Metadata.Description
 	test.Object = objid
 	test.EVR.Value = vuln.Version
 	test.EVR.Operation = "<"
 	test.If = append(test.If, reltestid)
+	// Include all listed CVEs as a tag in the test
+	cvelist := scribe.TestTag{Key: "cve"}
+	var cveval string
+	for _, x := range vuln.Metadata.CVE {
+		if cveval != "" {
+			cveval += ","
+		}
+		cveval += x
+	}
+	cvelist.Value = cveval
+	test.Tags = append(test.Tags, cvelist)
+	// Include CVSS if available
+	if vuln.Metadata.CVSS != "" {
+		test.Tags = append(test.Tags, scribe.TestTag{Key: "cvss", Value: vuln.Metadata.CVSS})
+	}
 	doc.Tests = append(doc.Tests, test)
 	testcntr++
 
