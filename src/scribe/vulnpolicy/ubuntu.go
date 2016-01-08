@@ -9,6 +9,7 @@ package vulnpolicy
 
 import (
 	"fmt"
+	"regexp"
 	"scribe"
 )
 
@@ -27,6 +28,29 @@ var UbuntuReleases = []UbuntuRelease{
 }
 
 const lsb_expression = "DISTRIB_RELEASE=(\\d{1,2}\\.\\d{1,2})"
+
+type ubuntuPackageCollect struct {
+	PkgName    string // Package name
+	CollectExp string // Collection expression
+}
+
+var ubuntuCollectPkg = []ubuntuPackageCollect{
+	{"linux-image-generic", "^linux-image-\\d.*-generic$"},
+	{"linux-image-extra-generic", "^linux-image-extra-\\d.*-generic$"},
+}
+
+func ubuntuGetReleasePackage(vuln Vulnerability) (string, string) {
+	for _, x := range ubuntuCollectPkg {
+		mtch, err := regexp.MatchString(x.CollectExp, vuln.Package)
+		if err != nil {
+			panic(err)
+		}
+		if mtch {
+			return x.PkgName, x.CollectExp
+		}
+	}
+	return vuln.Package, ""
+}
 
 func ubuntuGetReleaseTest(doc *scribe.Document, vuln Vulnerability) (string, error) {
 	reltestname := fmt.Sprintf("test-release-%v-%v", vuln.OS, vuln.Release)

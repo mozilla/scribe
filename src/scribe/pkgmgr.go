@@ -9,6 +9,7 @@ package scribe
 
 import (
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
@@ -46,15 +47,22 @@ func QueryPackages() []PackageInfo {
 	return ret
 }
 
-func getPackage(name string) (ret pkgmgrResult) {
+func getPackage(name string, collectexp string) (ret pkgmgrResult) {
 	ret.results = make([]pkgmgrInfo, 0)
 	if !pkgmgrInitialized {
 		pkgmgrInit()
 	}
 	debugPrint("getPackage(): looking for \"%v\"\n", name)
 	for _, x := range pkgmgrCache {
-		if x.name != name {
-			continue
+		if collectexp == "" {
+			if x.name != name {
+				continue
+			}
+		} else {
+			mtch, err := regexp.MatchString(collectexp, x.name)
+			if err != nil || !mtch {
+				continue
+			}
 		}
 		debugPrint("getPackage(): found %v, %v, %v\n", x.name, x.version, x.pkgtype)
 		ret.results = append(ret.results, x)

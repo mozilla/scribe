@@ -40,6 +40,13 @@ func getReleaseTest(doc *scribe.Document, vuln Vulnerability) (string, error) {
 	return "", fmt.Errorf("unable to create release definition")
 }
 
+func getReleasePackage(vuln Vulnerability) (string, string) {
+	if vuln.OS == "ubuntu" {
+		return ubuntuGetReleasePackage(vuln)
+	}
+	return vuln.Package, ""
+}
+
 func addTest(doc *scribe.Document, vuln Vulnerability) error {
 	// Get the release definition for the test, if it's missing from
 	// the document it will be added
@@ -61,7 +68,7 @@ func addTest(doc *scribe.Document, vuln Vulnerability) error {
 		objid = fmt.Sprintf("obj-package-%v", vuln.Package)
 		obj := scribe.Object{}
 		obj.Object = objid
-		obj.Package.Name = vuln.Package
+		obj.Package.Name, obj.Package.CollectMatch = getReleasePackage(vuln)
 		doc.Objects = append(doc.Objects, obj)
 	}
 
