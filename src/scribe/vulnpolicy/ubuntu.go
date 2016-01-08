@@ -37,6 +37,8 @@ type ubuntuPackageCollect struct {
 var ubuntuCollectPkg = []ubuntuPackageCollect{
 	{"linux-image-generic", "^linux-image-\\d.*-generic$"},
 	{"linux-image-extra-generic", "^linux-image-extra-\\d.*-generic$"},
+	{"linux-headers", "^linux-headers-[\\d-.]+$"},
+	{"linux-headers-generic", "^linux-headers-[\\d-.]+-generic$"},
 }
 
 func ubuntuGetReleasePackage(vuln Vulnerability) (string, string) {
