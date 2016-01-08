@@ -302,7 +302,8 @@ func (s *simpleFileLocator) locateInner(target string, useRegexp bool, path stri
 		} else if (x.Mode() & os.ModeSymlink) > 0 {
 			isregsym, err := s.symFollowIsRegular(fname)
 			if err != nil {
-				return err
+				// Ignore these errors and continue searching
+				return nil
 			}
 			if isregsym {
 				if !useRegexp {

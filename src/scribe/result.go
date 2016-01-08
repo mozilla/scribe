@@ -16,8 +16,9 @@ import (
 // Describes the results of a test. The type can be marshaled into a JSON
 // string as required.
 type TestResult struct {
-	TestID string   `json:"testid"`         // The identifier for the test.
-	Tags   []string `json:"tags,omitempty"` // Tags for the test.
+	TestID      string    `json:"testid"`         // The identifier for the test.
+	Description string    `json:"description"`    // Test description
+	Tags        []TestTag `json:"tags,omitempty"` // Tags for the test.
 
 	IsError bool   `json:"iserror"` // True of error is encountered during evaluation.
 	Error   string `json:"error"`   // Error associated with test.
@@ -45,6 +46,7 @@ func GetResults(d *Document, name string) (TestResult, error) {
 	}
 	ret := TestResult{}
 	ret.TestID = t.TestID
+	ret.Description = t.Description
 	ret.Tags = t.Tags
 	if t.err != nil {
 		ret.Error = fmt.Sprintf("%v", t.err)
@@ -77,18 +79,6 @@ func (r *TestResult) SingleLineResults() []string {
 		}
 	}
 	buf := fmt.Sprintf("master %v name:\"%v\" hastrue:%v error:\"%v\"", rs, r.TestID, r.HasTrueResults, r.Error)
-	if len(r.Tags) > 0 {
-		buf += " tags:["
-		f := false
-		for _, x := range r.Tags {
-			if f {
-				buf += ","
-			}
-			buf += fmt.Sprintf("\"%v\"", x)
-			f = true
-		}
-		buf += "]"
-	}
 	lns = append(lns, buf)
 
 	for _, x := range r.Results {
@@ -118,6 +108,10 @@ func (r *TestResult) JSON() string {
 func (r *TestResult) String() string {
 	lns := make([]string, 0)
 	lns = append(lns, fmt.Sprintf("result for \"%v\"", r.TestID))
+	if r.Description != "" {
+		buf := fmt.Sprintf("\tdescription: %v", r.Description)
+		lns = append(lns, buf)
+	}
 	if r.MasterResult {
 		lns = append(lns, "\tmaster result: true")
 	} else {
@@ -129,7 +123,7 @@ func (r *TestResult) String() string {
 	}
 	if len(r.Tags) > 0 {
 		for _, x := range r.Tags {
-			lns = append(lns, fmt.Sprintf("\ttag: %v", x))
+			lns = append(lns, fmt.Sprintf("\ttag: %v: %v", x.Key, x.Value))
 		}
 	}
 	if r.IsError {
