@@ -36,6 +36,8 @@ var testcntr int
 func getReleaseTest(doc *scribe.Document, vuln Vulnerability) (string, error) {
 	if vuln.OS == "ubuntu" {
 		return ubuntuGetReleaseTest(doc, vuln)
+	} else if (vuln.OS == "redhat") || (vuln.OS == "centos") {
+		return redhatGetReleaseTest(doc, vuln)
 	}
 	return "", fmt.Errorf("unable to create release definition")
 }
