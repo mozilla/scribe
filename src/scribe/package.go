@@ -25,9 +25,14 @@ import (
 // This is intended to handle a case where we want to do a kernel package
 // version comparison, but the kernel package name actually includes the a
 // version string which makes a direct package name -> name comparison harder.
+//
+// If OnlyNewest is true, the object will only be populated with the newest
+// instance of a given package if there are multiple versions of the same
+// package installed.
 type Pkg struct {
 	Name         string `json:"name,omitempty"`
 	CollectMatch string `json:"collectmatch,omitempty"`
+	OnlyNewest   bool   `json:"onlynewest,omitempty"`
 	pkgInfo      []packageInfo
 }
 
@@ -70,10 +75,38 @@ func (p *Pkg) getCriteria() (ret []evaluationCriteria) {
 	return ret
 }
 
+func newestPackage(r pkgmgrResult) (ret packageInfo, err error) {
+	var pinfo *pkgmgrInfo
+	for i := range r.results {
+		if pinfo == nil {
+			pinfo = &r.results[i]
+			continue
+		}
+		f, err := evrCompare(EVROP_LESS_THAN, pinfo.version, r.results[i].version)
+		if err != nil {
+			return ret, err
+		}
+		if f {
+			pinfo = &r.results[i]
+		}
+	}
+	ret.Name = pinfo.name
+	ret.Version = pinfo.version
+	return ret, nil
+}
+
 func (p *Pkg) prepare() error {
 	debugPrint("prepare(): preparing information for package \"%v\"\n", p.Name)
 	p.pkgInfo = make([]packageInfo, 0)
 	ret := getPackage(p.Name, p.CollectMatch)
+	if p.OnlyNewest && len(ret.results) > 0 {
+		pir, err := newestPackage(ret)
+		if err != nil {
+			return err
+		}
+		p.pkgInfo = append(p.pkgInfo, pir)
+		return nil
+	}
 	for _, x := range ret.results {
 		n := packageInfo{}
 		n.Name = x.name
