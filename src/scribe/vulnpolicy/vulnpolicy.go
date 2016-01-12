@@ -8,6 +8,7 @@
 package vulnpolicy
 
 import (
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"scribe"
@@ -17,11 +18,18 @@ type Policy struct {
 	Vulnerabilities []Vulnerability `json:"vulnerabilities,omitempty"`
 }
 
+// This structure represents intermediate vulnerability information that can
+// be converted into scribe tests for execution.
+//
+// The ID value should be unique to a given issue, and consistent in the sense
+// if the policy is recreated from the same source data, the ID should remain
+// the same.
 type Vulnerability struct {
 	OS       string   `json:"os,omitempty"`
 	Release  string   `json:"release,omitempty"`
 	Package  string   `json:"package,omitempty"`
 	Version  string   `json:"version,omitempty"`
+	ID       string   `json:"id,omitempty"` // Globally unique test identifier
 	Metadata Metadata `json:"metadata,omitempty"`
 }
 
@@ -49,6 +57,18 @@ func getReleasePackage(vuln Vulnerability) (string, string) {
 	return vuln.Package, ""
 }
 
+func getTestID(vuln Vulnerability) (string, error) {
+	if len(vuln.ID) == 0 || len(vuln.OS) == 0 ||
+		len(vuln.Release) == 0 {
+		return "", fmt.Errorf("test for %v missing ID, OS, or Release", vuln.Package)
+	}
+	h := md5.New()
+	h.Write([]byte(vuln.ID))
+	h.Write([]byte(vuln.OS))
+	h.Write([]byte(vuln.Release))
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
 func addTest(doc *scribe.Document, vuln Vulnerability) error {
 	// Get the release definition for the test, if it's missing from
 	// the document it will be added
@@ -74,9 +94,11 @@ func addTest(doc *scribe.Document, vuln Vulnerability) error {
 		doc.Objects = append(doc.Objects, obj)
 	}
 
-	testidstr := fmt.Sprintf("test-%v-%v-%v-%v", vuln.OS, vuln.Release,
-		vuln.Package, testcntr)
 	test := scribe.Test{}
+	testidstr, err := getTestID(vuln)
+	if err != nil {
+		return err
+	}
 	test.TestID = testidstr
 	test.Description = vuln.Metadata.Description
 	test.Object = objid
