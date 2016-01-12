@@ -66,6 +66,7 @@ func getTestID(vuln Vulnerability) (string, error) {
 	h.Write([]byte(vuln.ID))
 	h.Write([]byte(vuln.OS))
 	h.Write([]byte(vuln.Release))
+	h.Write([]byte(vuln.Package))
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
