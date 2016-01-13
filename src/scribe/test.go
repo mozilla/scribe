@@ -20,6 +20,7 @@ type TestTag struct {
 
 type Test struct {
 	TestID      string `json:"test"`   // The ID for this test.
+	TestName    string `json:"name"`   // An optional name for this test
 	Object      string `json:"object"` // The object this test references.
 	Description string `json:"description,omitempty"`
 
