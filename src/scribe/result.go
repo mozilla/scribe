@@ -17,6 +17,7 @@ import (
 // string as required.
 type TestResult struct {
 	TestID      string    `json:"testid"`         // The identifier for the test.
+	TestName    string    `json:"name"`           // Optional test name for display
 	Description string    `json:"description"`    // Test description
 	Tags        []TestTag `json:"tags,omitempty"` // Tags for the test.
 
@@ -46,6 +47,7 @@ func GetResults(d *Document, name string) (TestResult, error) {
 	}
 	ret := TestResult{}
 	ret.TestID = t.TestID
+	ret.TestName = t.TestName
 	ret.Description = t.Description
 	ret.Tags = t.Tags
 	if t.err != nil {
@@ -78,7 +80,12 @@ func (r *TestResult) SingleLineResults() []string {
 			rs = "[false]"
 		}
 	}
-	buf := fmt.Sprintf("master %v name:\"%v\" hastrue:%v error:\"%v\"", rs, r.TestID, r.HasTrueResults, r.Error)
+	namestr := r.TestID
+	if r.TestName != "" {
+		namestr = r.TestName
+	}
+	buf := fmt.Sprintf("master %v name:\"%v\" id:\"%v\" hastrue:%v error:\"%v\"",
+		rs, namestr, r.TestID, r.HasTrueResults, r.Error)
 	lns = append(lns, buf)
 
 	for _, x := range r.Results {
@@ -87,7 +94,8 @@ func (r *TestResult) SingleLineResults() []string {
 		} else {
 			rs = "[false]"
 		}
-		buf := fmt.Sprintf("sub %v name:\"%v\" identifier:\"%v\"", rs, r.TestID, x.Identifier)
+		buf := fmt.Sprintf("sub %v name:\"%v\" id:\"%v\" identifier:\"%v\"",
+			rs, namestr, r.TestID, x.Identifier)
 		lns = append(lns, buf)
 	}
 
@@ -107,7 +115,11 @@ func (r *TestResult) JSON() string {
 // suitable for display.
 func (r *TestResult) String() string {
 	lns := make([]string, 0)
-	lns = append(lns, fmt.Sprintf("result for \"%v\"", r.TestID))
+	if r.TestName != "" {
+		lns = append(lns, fmt.Sprintf("result for \"%v\" (%v)", r.TestName, r.TestID))
+	} else {
+		lns = append(lns, fmt.Sprintf("result for \"%v\"", r.TestID))
+	}
 	if r.Description != "" {
 		buf := fmt.Sprintf("\tdescription: %v", r.Description)
 		lns = append(lns, buf)

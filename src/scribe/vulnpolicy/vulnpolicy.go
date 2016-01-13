@@ -100,6 +100,9 @@ func addTest(doc *scribe.Document, vuln Vulnerability) error {
 	if err != nil {
 		return err
 	}
+	// Build a more descriptive name for this test to override the test ID
+	// in command output
+	test.TestName = fmt.Sprintf("test-%v-%v-%v-%v", vuln.OS, vuln.Release, vuln.Package, testcntr)
 	test.TestID = testidstr
 	test.Description = vuln.Metadata.Description
 	test.Object = objid
