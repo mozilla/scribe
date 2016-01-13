@@ -37,6 +37,7 @@ type Metadata struct {
 	Description string   `json:"description"`
 	CVE         []string `json:"cve"`
 	CVSS        string   `json:"cvss"`
+	Category    string   `json:"category"`
 }
 
 var testcntr int
@@ -123,6 +124,9 @@ func addTest(doc *scribe.Document, vuln Vulnerability) error {
 	// Include CVSS if available
 	if vuln.Metadata.CVSS != "" {
 		test.Tags = append(test.Tags, scribe.TestTag{Key: "cvss", Value: vuln.Metadata.CVSS})
+	}
+	if vuln.Metadata.Category != "" {
+		test.Tags = append(test.Tags, scribe.TestTag{Key: "category", Value: vuln.Metadata.Category})
 	}
 	doc.Tests = append(doc.Tests, test)
 	testcntr++
