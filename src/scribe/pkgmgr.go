@@ -166,6 +166,8 @@ var testPkgTable = []struct {
 	{"upstart", "1.13.2"},
 	{"grub-common", "2.02-beta2"},
 	{"libbind", "1:9.9.5.dfsg-4.3"},
+	{"kernel", "2.6.32-504.12.2.el6.x86_64"},
+	{"kernel", "2.6.32-573.8.1.el6.x86_64"},
 }
 
 func testGetPackages() []pkgmgrInfo {
