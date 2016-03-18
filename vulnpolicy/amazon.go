@@ -9,7 +9,7 @@ package vulnpolicy
 
 import (
 	"fmt"
-	"scribe"
+	"github.com/mozilla/scribe"
 )
 
 const amazon_expression = "^(Amazon Linux AMI.*)$"

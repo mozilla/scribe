@@ -9,7 +9,7 @@ package scribe_test
 
 import (
 	"fmt"
-	"scribe"
+	"github.com/mozilla/scribe"
 	"testing"
 )
 

@@ -10,7 +10,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"scribe"
+	"github.com/mozilla/scribe"
 )
 
 var flagDebug bool
