@@ -29,4 +29,4 @@ instance build and testing process, or periodically on an installed system.
 
 Additional documentation
 ------------------------
-Additional documentation on the library is available at [godoc.org](https://godoc.org/github.com/mozilla/scribe/src/scribe).
+Additional documentation on the library is available at [godoc.org](https://godoc.org/github.com/mozilla/scribe/).
