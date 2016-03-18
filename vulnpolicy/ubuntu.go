@@ -10,7 +10,7 @@ package vulnpolicy
 import (
 	"fmt"
 	"regexp"
-	"scribe"
+	"github.com/mozilla/scribe"
 )
 
 type UbuntuRelease struct {

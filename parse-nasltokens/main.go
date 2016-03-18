@@ -14,7 +14,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"scribe"
+	"github.com/mozilla/scribe"
 	"strings"
 )
 

@@ -9,7 +9,7 @@ package vulnpolicy
 
 import (
 	"fmt"
-	"scribe"
+	"github.com/mozilla/scribe"
 )
 
 type RedHatRelease struct {

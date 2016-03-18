@@ -10,7 +10,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"scribe"
+	"github.com/mozilla/scribe"
 	"strings"
 )
 

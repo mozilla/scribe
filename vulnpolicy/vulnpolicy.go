@@ -11,7 +11,7 @@ import (
 	"crypto/md5"
 	"encoding/json"
 	"fmt"
-	"scribe"
+	"github.com/mozilla/scribe"
 )
 
 type Policy struct {

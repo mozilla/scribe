@@ -15,7 +15,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"scribe/vulnpolicy"
+
+	"github.com/mozilla/scribe/vulnpolicy"
 )
 
 func errExit(s string, args ...interface{}) {
