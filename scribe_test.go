@@ -9,37 +9,27 @@ package scribe_test
 
 import (
 	"fmt"
-	"github.com/mozilla/scribe"
 	"strings"
+
+	"github.com/mozilla/scribe"
 )
 
 func Example() {
-	docstr := `
-	{
-		"objects": [
-		{
-			"object": "raw",
-			"raw": {
-				"identifiers": [
-				{
-					"identifier": "test",
-					"value": "Example"
-				}
-				]
-			}
-		}
-		],
-		"tests": [
-		{
-			"test": "example",
-			"object": "raw",
-			"regexp": {
-				"value": "Example"
-			}
-		}
-		]
-	}
-	`
+	docstr := `---
+objects:
+  - object: raw
+    raw:
+      identifiers:
+        - identifier: test
+          value: Example
+tests:
+  - test: example
+    name: an example test
+    object: raw
+    regexp:
+      value: Example
+`
+
 	rdr := strings.NewReader(docstr)
 	// Initialize the library.
 	scribe.Bootstrap()

@@ -16,26 +16,26 @@ import (
 // Describes the results of a test. The type can be marshaled into a JSON
 // string as required.
 type TestResult struct {
-	TestID      string    `json:"testid"`         // The identifier for the test.
-	TestName    string    `json:"name"`           // Optional test name for display
-	Description string    `json:"description"`    // Test description
-	Tags        []TestTag `json:"tags,omitempty"` // Tags for the test.
+	TestID      string    `json:"testid" yaml:"testid"`                 // The identifier for the test.
+	TestName    string    `json:"name" yaml:"name"`                     // Optional test name for display
+	Description string    `json:"description" yaml:"description"`       // Test description
+	Tags        []TestTag `json:"tags,omitempty" yaml:"tags,omitempty"` // Tags for the test.
 
-	IsError bool   `json:"iserror"` // True of error is encountered during evaluation.
-	Error   string `json:"error"`   // Error associated with test.
+	IsError bool   `json:"iserror" yaml:"iserror"` // True of error is encountered during evaluation.
+	Error   string `json:"error" yaml:"error"`     // Error associated with test.
 
-	MasterResult   bool `json:"masterresult"`   // Master result of test.
-	HasTrueResults bool `json:"hastrueresults"` // True if > 0 evaluations resulted in true.
+	MasterResult   bool `json:"masterresult" yaml:"masterresult"`     // Master result of test.
+	HasTrueResults bool `json:"hastrueresults" yaml:"hastrueresults"` // True if > 0 evaluations resulted in true.
 
-	Results []TestSubResult `json:"results"` // The sub-results for the test.
+	Results []TestSubResult `json:"results" yaml:"results"` // The sub-results for the test.
 }
 
 // For a given test, a number of sources can be identified that match the
 // criteria. For example, multiple files can be identifier with a given
 // filename. Each test tracks individual results for these cases.
 type TestSubResult struct {
-	Result     bool   `json:"result"`     // The result of evaluation for an identifier source.
-	Identifier string `json:"identifier"` // The identifier for the source.
+	Result     bool   `json:"result" yaml:"result"`         // The result of evaluation for an identifier source.
+	Identifier string `json:"identifier" yaml:"identifier"` // The identifier for the source.
 }
 
 // Return test results for a given test. Returns an error if for

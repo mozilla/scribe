@@ -12,12 +12,12 @@ import (
 )
 
 type Raw struct {
-	Identifiers []RawIdentifiers `json:"identifiers,omitempty"`
+	Identifiers []RawIdentifiers `json:"identifiers,omitempty" yaml:"identifiers,omitempty"`
 }
 
 type RawIdentifiers struct {
-	Identifier string `json:"identifier,omitempty"`
-	Value      string `json:"value,omitempty"`
+	Identifier string `json:"identifier,omitempty" yaml:"identifier,omitempty"`
+	Value      string `json:"value,omitempty" yaml:"value,omitempty"`
 }
 
 func (r *Raw) isChain() bool {

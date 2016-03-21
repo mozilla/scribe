@@ -12,7 +12,7 @@ import (
 )
 
 type Regex struct {
-	Value string `json:"value,omitempty"`
+	Value string `json:"value,omitempty" yaml:"value,omitempty"`
 }
 
 func (r *Regex) evaluate(c evaluationCriteria) (ret evaluationResult, err error) {

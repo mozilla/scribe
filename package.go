@@ -30,9 +30,9 @@ import (
 // instance of a given package if there are multiple versions of the same
 // package installed.
 type Pkg struct {
-	Name         string `json:"name,omitempty"`
-	CollectMatch string `json:"collectmatch,omitempty"`
-	OnlyNewest   bool   `json:"onlynewest,omitempty"`
+	Name         string `json:"name,omitempty" yaml:"name,omitempty"`
+	CollectMatch string `json:"collectmatch,omitempty" yaml:"collectmatch,omitempty"`
+	OnlyNewest   bool   `json:"onlynewest,omitempty" yaml:"onlynewest,omitempty"`
 	pkgInfo      []packageInfo
 }
 
