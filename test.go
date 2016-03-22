@@ -14,31 +14,31 @@ import (
 
 // Describes arbitrary key value tags that can be associated with a test
 type TestTag struct {
-	Key   string `json:"key,omitempty"`
-	Value string `json:"value,omitempty"`
+	Key   string `json:"key,omitempty" yaml:"key,omitempty"`
+	Value string `json:"value,omitempty" yaml:"value,omitempty"`
 }
 
 type Test struct {
-	TestID      string `json:"test"`   // The ID for this test.
-	TestName    string `json:"name"`   // An optional name for this test
-	Object      string `json:"object"` // The object this test references.
-	Description string `json:"description,omitempty"`
+	TestID      string `json:"test" yaml:"test"`     // The ID for this test.
+	TestName    string `json:"name" yaml:"name"`     // An optional name for this test
+	Object      string `json:"object" yaml:"object"` // The object this test references.
+	Description string `json:"description,omitempty" yaml:"description,omitempty"`
 
 	// Evaluators
-	EVR    EVRTest    `json:"evr,omitempty"`        // EVR version comparison
-	Regexp Regex      `json:"regexp,omitempty"`     // Regular expression comparison
-	EMatch ExactMatch `json:"exactmatch,omitempty"` // Exact string match
+	EVR    EVRTest    `json:"evr,omitempty" yaml:"evr,omitempty"`               // EVR version comparison
+	Regexp Regex      `json:"regexp,omitempty" yaml:"regexp,omitempty"`         // Regular expression comparison
+	EMatch ExactMatch `json:"exactmatch,omitempty" yaml:"exactmatch,omitempty"` // Exact string match
 
-	Tags []TestTag `json:"tags,omitempty"` // Tags associated with the test
+	Tags []TestTag `json:"tags,omitempty" yaml:"tags,omitempty"` // Tags associated with the test
 
-	If []string `json:"if,omitempty"` // Slice of test names for dependencies
+	If []string `json:"if,omitempty" yaml:"if,omitempty"` // Slice of test names for dependencies
 
 	// These values are optional but can be set to use the expected result
 	// callback handler. These are primarily used for testing but can also
 	// be used to trigger scribecmd to return and a non-zero exit status
 	// if a test does not evaluate to the desired value.
-	ExpectedResult bool `json:"expectedresult,omitempty"` // Expected master result for test
-	ExpectError    bool `json:"expecterror,omitempty"`    // True if test should result in error
+	ExpectedResult bool `json:"expectedresult,omitempty" yaml:"expectedresult,omitempty"` // Expected master result for test
+	ExpectError    bool `json:"expecterror,omitempty" yaml:"expecterror,omitempty"`       // True if test should result in error
 
 	prepared  bool // True if test has been prepared.
 	evaluated bool // True if test has been evaluated at least once.

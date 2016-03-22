@@ -12,12 +12,12 @@ import (
 )
 
 type Object struct {
-	Object      string      `json:"object"`
-	FileContent FileContent `json:"filecontent"`
-	FileName    FileName    `json:"filename"`
-	Package     Pkg         `json:"package"`
-	Raw         Raw         `json:"raw"`
-	HasLine     HasLine     `json:"hasline"`
+	Object      string      `json:"object" yaml:"object"`
+	FileContent FileContent `json:"filecontent" yaml:"filecontent"`
+	FileName    FileName    `json:"filename" yaml:"filename"`
+	Package     Pkg         `json:"package" yaml:"package"`
+	Raw         Raw         `json:"raw" yaml:"raw"`
+	HasLine     HasLine     `json:"hasline" yaml:"hasline"`
 
 	isChain  bool  // True if object is part of an import chain.
 	prepared bool  // True if object has been prepared.
