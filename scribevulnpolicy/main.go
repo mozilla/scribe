@@ -5,25 +5,52 @@
 // Contributor:
 // - Aaron Meihm ameihm@mozilla.com
 
-package vulnpolicy
+package main
 
 import (
-	"crypto/md5"
-	"encoding/json"
+	"database/sql"
+	"flag"
 	"fmt"
-	"github.com/mozilla/scribe"
+	_ "github.com/lib/pq"
+	"os"
 )
+
+const (
+	PLATFORM_CENTOS_6 = iota
+	PLATFORM_CENTOS_7
+)
+
+// Our list of platforms we will support policy generation for, this maps the
+// platform constants to clair namespace identifiers
+type supportedPlatform struct {
+	platformId       int
+	name             string
+	clairNamespace   string
+	clairNamespaceId int // Populated upon query of the database
+}
+
+var supportedPlatforms = []supportedPlatform{
+	{PLATFORM_CENTOS_6, "centos6", "centos:6", 0},
+	{PLATFORM_CENTOS_7, "centos7", "centos:7", 0},
+}
+
+// Given a clair namespace, return the supportedPlatform entry for it if it is
+// supported, otherwise return an error
+func getPlatform(clairNamespace string) (ret supportedPlatform, err error) {
+	for _, x := range supportedPlatforms {
+		if clairNamespace == x.clairNamespace {
+			ret = x
+			return
+		}
+	}
+	err = fmt.Errorf("platform %v not supported", clairNamespace)
+	return
+}
 
 type Policy struct {
 	Vulnerabilities []Vulnerability `json:"vulnerabilities,omitempty"`
 }
 
-// This structure represents intermediate vulnerability information that can
-// be converted into scribe tests for execution.
-//
-// The ID value should be unique to a given issue, and consistent in the sense
-// if the policy is recreated from the same source data, the ID should remain
-// the same.
 type Vulnerability struct {
 	OS       string   `json:"os,omitempty"`
 	Release  string   `json:"release,omitempty"`
@@ -33,6 +60,15 @@ type Vulnerability struct {
 	Metadata Metadata `json:"metadata,omitempty"`
 }
 
+type vuln struct {
+	name           string
+	fixedInVersion string
+	pkgName        string
+	severity       string
+	link           string
+	description    string
+}
+
 type Metadata struct {
 	Description string   `json:"description"`
 	CVE         []string `json:"cve"`
@@ -40,118 +76,120 @@ type Metadata struct {
 	Category    string   `json:"category"`
 }
 
-var testcntr int
-
-func getReleaseTest(doc *scribe.Document, vuln Vulnerability) (string, error) {
-	if vuln.OS == "ubuntu" {
-		return ubuntuGetReleaseTest(doc, vuln)
-	} else if (vuln.OS == "redhat") || (vuln.OS == "centos") {
-		return redhatGetReleaseTest(doc, vuln)
-	} else if vuln.OS == "amazon" {
-		return amazonGetReleaseTest(doc, vuln)
+type config struct {
+	Database struct {
+		DBName     string
+		DBHost     string
+		DBUser     string
+		DBPassword string
+		DBPort     string
 	}
-	return "", fmt.Errorf("unable to create release definition")
 }
 
-func getReleasePackage(vuln Vulnerability) (string, string) {
-	if vuln.OS == "ubuntu" {
-		return ubuntuGetReleasePackage(vuln)
-	}
-	return vuln.Package, ""
-}
+var dbconn *sql.DB
+var cfg config
 
-func getTestID(vuln Vulnerability) (string, error) {
-	if len(vuln.ID) == 0 || len(vuln.OS) == 0 ||
-		len(vuln.Release) == 0 {
-		return "", fmt.Errorf("test for %v missing ID, OS, or Release", vuln.Package)
+// Set any configuration based on environment variables
+func configFromEnv() error {
+	envvar := os.Getenv("PGHOST")
+	if envvar != "" {
+		cfg.Database.DBHost = envvar
 	}
-	h := md5.New()
-	h.Write([]byte(vuln.ID))
-	h.Write([]byte(vuln.OS))
-	h.Write([]byte(vuln.Release))
-	h.Write([]byte(vuln.Package))
-	return fmt.Sprintf("%x", h.Sum(nil)), nil
-}
-
-func addTest(doc *scribe.Document, vuln Vulnerability) error {
-	// Get the release definition for the test, if it's missing from
-	// the document it will be added
-	reltestid, err := getReleaseTest(doc, vuln)
-	if err != nil {
-		return err
+	envvar = os.Getenv("PGUSER")
+	if envvar != "" {
+		cfg.Database.DBUser = envvar
 	}
-
-	// See if we already have an object definition for the package, if
-	// not add it
-	objid := ""
-	for _, x := range doc.Objects {
-		if x.Package.Name == vuln.Package {
-			objid = x.Object
-			break
-		}
+	envvar = os.Getenv("PGPASSWORD")
+	if envvar != "" {
+		cfg.Database.DBPassword = envvar
 	}
-	if objid == "" {
-		objid = fmt.Sprintf("obj-package-%v", vuln.Package)
-		obj := scribe.Object{}
-		obj.Object = objid
-		obj.Package.Name, obj.Package.CollectMatch = getReleasePackage(vuln)
-		doc.Objects = append(doc.Objects, obj)
+	envvar = os.Getenv("PGDATABASE")
+	if envvar != "" {
+		cfg.Database.DBName = envvar
 	}
-
-	test := scribe.Test{}
-	testidstr, err := getTestID(vuln)
-	if err != nil {
-		return err
+	envvar = os.Getenv("PGPORT")
+	if envvar != "" {
+		cfg.Database.DBPort = envvar
 	}
-	// Build a more descriptive name for this test to override the test ID
-	// in command output
-	test.TestName = fmt.Sprintf("test-%v-%v-%v-%v", vuln.OS, vuln.Release, vuln.Package, testcntr)
-	test.TestID = testidstr
-	test.Description = vuln.Metadata.Description
-	test.Object = objid
-	test.EVR.Value = vuln.Version
-	test.EVR.Operation = "<"
-	test.If = append(test.If, reltestid)
-	// Include all listed CVEs as a tag in the test
-	cvelist := scribe.TestTag{Key: "cve"}
-	var cveval string
-	for _, x := range vuln.Metadata.CVE {
-		if cveval != "" {
-			cveval += ","
-		}
-		cveval += x
-	}
-	cvelist.Value = cveval
-	test.Tags = append(test.Tags, cvelist)
-	// Include CVSS if available
-	if vuln.Metadata.CVSS != "" {
-		test.Tags = append(test.Tags, scribe.TestTag{Key: "cvss", Value: vuln.Metadata.CVSS})
-	}
-	if vuln.Metadata.Category != "" {
-		test.Tags = append(test.Tags, scribe.TestTag{Key: "category", Value: vuln.Metadata.Category})
-	}
-	doc.Tests = append(doc.Tests, test)
-	testcntr++
-
 	return nil
 }
 
-func DocumentFromPolicy(buf []byte) (ret scribe.Document, err error) {
-	policy := Policy{}
-	err = json.Unmarshal(buf, &policy)
-	if err != nil {
-		return
-	}
+func dbInit() (err error) {
+	connstr := fmt.Sprintf("dbname=%v host=%v user=%v password=%v port=%v sslmode=disable",
+		cfg.Database.DBName, cfg.Database.DBHost, cfg.Database.DBUser,
+		cfg.Database.DBPassword, cfg.Database.DBPort)
+	dbconn, err = sql.Open("postgres", connstr)
+	return
+}
 
-	// Create a test for each vulnerability that is listed in the
-	// policy. Create depedency release tests in the document as
-	// well as we go.
-	testcntr = 0
-	for _, x := range policy.Vulnerabilities {
-		err = addTest(&ret, x)
-		if err != nil {
-			return
+func generatePolicy(p string) error {
+	var platform supportedPlatform
+	// First make sure this is a supported platform, and this will also get us the namespace ID
+	platforms, err := dbGetSupportedPlatforms()
+	if err != nil {
+		return err
+	}
+	supported := false
+	for _, x := range platforms {
+		if x.name == p {
+			supported = true
+			platform = x
+			break
 		}
 	}
-	return
+	if !supported {
+		return fmt.Errorf("platform %v not supported for policy generation", p)
+	}
+
+	// Get all vulnerabilities for the platform from the database
+	_, err = dbVulnsForPlatform(platform)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func main() {
+	var (
+		genPlatform  string
+		showVersions bool
+		err          error
+	)
+	flag.BoolVar(&showVersions, "V", false, "show distributions we can generate policies for and exit")
+	flag.Parse()
+	if len(flag.Args()) >= 1 {
+		genPlatform = flag.Args()[0]
+	}
+
+	err = configFromEnv()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error reading config from environment: %v\n", err)
+		os.Exit(1)
+	}
+	err = dbInit()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error initializing database: %v\n", err)
+		os.Exit(1)
+	}
+
+	if showVersions {
+		platforms, err := dbGetSupportedPlatforms()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error retrieving platforms: %v\n", err)
+			os.Exit(1)
+		}
+		for _, x := range platforms {
+			fmt.Printf("%v\n", x.name)
+		}
+		os.Exit(0)
+	}
+
+	if genPlatform == "" {
+		fmt.Fprintf(os.Stderr, "error: platform to generate policy for not specified\n")
+		os.Exit(1)
+	}
+	err = generatePolicy(genPlatform)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error generating policy: %v\n", err)
+	}
 }

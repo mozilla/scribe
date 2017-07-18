@@ -5,7 +5,7 @@
 // Contributor:
 // - Aaron Meihm ameihm@mozilla.com
 
-package vulnpolicy
+package main
 
 type OS struct {
 	Name string // Identifier for OS

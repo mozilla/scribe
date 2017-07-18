@@ -5,12 +5,12 @@
 // Contributor:
 // - Aaron Meihm ameihm@mozilla.com
 
-package vulnpolicy
+package main
 
 import (
 	"fmt"
-	"regexp"
 	"github.com/mozilla/scribe"
+	"regexp"
 )
 
 type UbuntuRelease struct {

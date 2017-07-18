@@ -1,22 +1,14 @@
-PROJS = scribe scribecmd evrtest ubuntu-cve-tracker parse-nasltokens \
-	scribevulnpolicy
+PROJS = scribe scribecmd evrtest scribevulnpolicy
 GO = GO15VENDOREXPERIMENT=1 go
 GOLINT = golint
 
 all: $(PROJS) runtests
-
-ubuntu-cve-tracker:
-	$(GO) install github.com/mozilla/scribe/ubuntu-cve-tracker
-
-parse-nasltokens:
-	$(GO) install github.com/mozilla/scribe/parse-nasltokens
 
 evrtest:
 	$(GO) install github.com/mozilla/scribe/evrtest
 
 scribe:
 	$(GO) install github.com/mozilla/scribe
-	$(GO) install github.com/mozilla/scribe/vulnpolicy
 
 scribecmd:
 	$(GO) install github.com/mozilla/scribe/scribecmd
