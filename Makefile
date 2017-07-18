@@ -1,7 +1,6 @@
 PROJS = scribe scribecmd evrtest ubuntu-cve-tracker parse-nasltokens \
 	scribevulnpolicy
 GO = GO15VENDOREXPERIMENT=1 go
-GOGETTER = GOPATH=$(shell pwd)/.tmpdeps go get -d
 GOLINT = golint
 
 all: $(PROJS) runtests
@@ -43,14 +42,10 @@ vet:
 	$(GO) vet $(PROJECT)
 
 go_vendor_dependencies:
-	$(GOGETTER) gopkg.in/yaml.v2
-	echo 'removing .git from vendored pkg and moving them to vendor'
-	find .tmpdeps/src -name ".git" ! -name ".gitignore" -exec rm -rf {} \; || exit 0
-	[ -d vendor ] && git rm -rf vendor/ || exit 0
-	mkdir vendor/ || exit 0
-	cp -ar .tmpdeps/src/* vendor/
-	git add vendor/
-	rm -rf .tmpdeps
+	govend -u
+	rm -rf vendor/github.com/mozilla/scribe
+	[ $$(ls -A vendor/github.com/mozilla) ] || rm -r vendor/github.com/mozilla
+	[ $$(ls -A vendor/github.com) ] || rm -r vendor/github.com
 
 clean:
 	rm -rf pkg
