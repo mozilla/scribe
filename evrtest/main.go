@@ -43,11 +43,11 @@ func main() {
 		operator := fields[1]
 		switch operator {
 		case "=":
-			opmode = scribe.EVROP_EQUALS
+			opmode = scribe.EvropEquals
 		case "<":
-			opmode = scribe.EVROP_LESS_THAN
+			opmode = scribe.EvropLessThan
 		case ">":
-			opmode = scribe.EVROP_GREATER_THAN
+			opmode = scribe.EvropGreaterThan
 		default:
 			fmt.Fprintf(os.Stderr, "unknown operation %v\n", operator)
 			os.Exit(1)

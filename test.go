@@ -12,12 +12,15 @@ import (
 	"strings"
 )
 
-// Describes arbitrary key value tags that can be associated with a test
+// TestTag describes arbitrary key value tags that can be associated with a test
 type TestTag struct {
 	Key   string `json:"key,omitempty" yaml:"key,omitempty"`
 	Value string `json:"value,omitempty" yaml:"value,omitempty"`
 }
 
+// Test is a test within the policy document that will be executed. Tests specify
+// various criteria, and then compare this criteria against the data returned by the
+// object the test references.
 type Test struct {
 	TestID      string `json:"test" yaml:"test"`     // The ID for this test.
 	TestName    string `json:"name" yaml:"name"`     // An optional name for this test
