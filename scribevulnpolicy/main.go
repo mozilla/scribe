@@ -187,6 +187,13 @@ func generatePolicy(p string) error {
 		if err != nil {
 			return err
 		}
+		// Add some tags to the test we can use when we parse results
+		pkgtag := scribe.TestTag{Key: "package", Value: x.pkgName}
+		newtest.Tags = append(newtest.Tags, pkgtag)
+		sevtag := scribe.TestTag{Key: "severity", Value: x.severity}
+		newtest.Tags = append(newtest.Tags, sevtag)
+		linktag := scribe.TestTag{Key: "link", Value: x.link}
+		newtest.Tags = append(newtest.Tags, linktag)
 		doc.Tests = append(doc.Tests, newtest)
 	}
 
