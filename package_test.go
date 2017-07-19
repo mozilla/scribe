@@ -8,7 +8,6 @@
 package scribe_test
 
 import (
-	"fmt"
 	"github.com/mozilla/scribe"
 	"testing"
 )
@@ -18,7 +17,7 @@ func TestPackageQuery(t *testing.T) {
 	scribe.TestHooks(true)
 	pinfo := scribe.QueryPackages()
 	for _, x := range pinfo {
-		fmt.Println(x.Name, x.Version, x.Type)
+		t.Logf("%v %v %v", x.Name, x.Version, x.Type)
 	}
 	if len(pinfo) != 7 {
 		t.FailNow()
