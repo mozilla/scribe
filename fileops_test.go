@@ -8,7 +8,6 @@
 package scribe_test
 
 import (
-	"fmt"
 	"github.com/mozilla/scribe"
 	"strings"
 	"testing"
@@ -69,7 +68,6 @@ func TestHasLinePolicy(t *testing.T) {
 		if err != nil {
 			t.Fatalf("scribe.GetResults: %v", err)
 		}
-		fmt.Println(sres.String())
 		if stest.ExpectError {
 			if !sres.IsError {
 				t.Fatalf("test %v should have been an error", x)
