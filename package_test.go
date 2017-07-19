@@ -162,8 +162,17 @@ func TestPackagePolicy(t *testing.T) {
 		if err != nil {
 			t.Fatalf("scribe.GetResults: %v", err)
 		}
-		if sres.MasterResult != stest.ExpectedResult {
-			t.Fatalf("result incorrect for test %v", x)
+		if stest.ExpectError {
+			if !sres.IsError {
+				t.Fatalf("test %v should have been an error", x)
+			}
+		} else {
+			if sres.IsError {
+				t.Fatalf("test %v resulted in an error", x)
+			}
+			if sres.MasterResult != stest.ExpectedResult {
+				t.Fatalf("result incorrect for test %v", x)
+			}
 		}
 	}
 }
