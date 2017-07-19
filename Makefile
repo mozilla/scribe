@@ -13,16 +13,13 @@ scribecmd:
 scribevulnpolicy:
 	$(GO) install github.com/mozilla/scribe/scribevulnpolicy
 
-runtests: scribetests gotests
+runtests: gotests
 
 gotests:
 	$(GO) test -v -covermode=count -coverprofile=coverage.out github.com/mozilla/scribe
 
 showcoverage: gotests
 	$(GO) tool cover -html=coverage.out
-
-scribetests: $(PROJS)
-	cd test && SCRIBECMD=$$(which scribecmd) $(MAKE) runtests
 
 lint:
 	$(GOLINT) $(PROJECT)
@@ -41,4 +38,4 @@ clean:
 	rm -f bin/*
 	cd test && $(MAKE) clean
 
-.PHONY: $(PROJS) runtests gotests showcoverage scribetests lint vet clean
+.PHONY: $(PROJS) runtests gotests showcoverage lint vet clean
