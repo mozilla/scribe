@@ -43,3 +43,62 @@ var concatPolicyDoc = `
 func TestConcatPolicy(t *testing.T) {
 	genericTestExec(t, concatPolicyDoc)
 }
+
+// Used in testImportChainPolicy
+var importChainPolicyDoc = `
+{
+        "variables": [
+        { "key": "root", "value": "./test/import-chain" }
+        ],
+
+        "objects": [
+        {
+                "object": "testfile0-combined",
+                "filecontent": {
+                        "path": "${root}",
+                        "file": "testfile0",
+                        "expression": "var = \\((\\S+), (\\S+)\\)",
+                        "concat": ".",
+                        "import-chain": [ "testfile1-minor" ]
+                }
+        },
+
+        {
+                "object": "testfile1-minor",
+                "filecontent": {
+                        "path": "${chain_root}",
+                        "file": "testfile1",
+                        "expression": "minor = (\\S+)",
+                        "import-chain": [ "rawappend" ]
+                }
+        },
+
+        {
+                "object": "rawappend",
+                "raw": {
+                        "identifiers": [
+                        {
+                                "identifier": "rawidentifier",
+                                "value": "teststring"
+                        }
+                        ]
+                }
+        }
+        ],
+
+        "tests": [
+        {
+                "test": "testfile0-noop",
+                "expectedresult": true,
+                "object": "testfile0-combined",
+                "regexp": {
+                        "value": "^1.5.8.teststring$"
+                }
+        }
+        ]
+}
+`
+
+func TestImportChainPolicy(t *testing.T) {
+	genericTestExec(t, importChainPolicyDoc)
+}
