@@ -21,18 +21,18 @@ type pkgmgrResult struct {
 }
 
 type pkgmgrInfo struct {
-	name        string
-	version     string
-	pkgtype     string
-	arch        string
+	name    string
+	version string
+	pkgtype string
+	arch    string
 }
 
 // Package information from the system as returned by QueryPackages().
 type PackageInfo struct {
-	Name        string `json:"name" yaml:"name"`                                   // Package name.
-	Version     string `json:"version" yaml:"version"`                             // Package version.
-	Type        string `json:"type" yaml:"type"`                                   // Package type.
-	Arch        string `json:"arch" yaml:"arch"`                                   // Package architecture
+	Name    string `json:"name" yaml:"name"`       // Package name.
+	Version string `json:"version" yaml:"version"` // Package version.
+	Type    string `json:"type" yaml:"type"`       // Package type.
+	Arch    string `json:"arch" yaml:"arch"`       // Package architecture
 }
 
 // Query packages on the system, returning a slice of all identified packages

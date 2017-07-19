@@ -9,8 +9,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"os"
 	"github.com/mozilla/scribe"
+	"os"
 	"strings"
 )
 
