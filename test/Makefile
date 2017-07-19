@@ -1,4 +1,4 @@
-TESTDIRS = raw tags
+TESTDIRS = raw
 
 all:
 

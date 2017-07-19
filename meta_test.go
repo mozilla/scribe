@@ -102,3 +102,47 @@ var importChainPolicyDoc = `
 func TestImportChainPolicy(t *testing.T) {
 	genericTestExec(t, importChainPolicyDoc)
 }
+
+var tagsPolicyDoc = `
+{
+        "variables": [
+        { "key": "root", "value": "./test/tags" }
+        ],
+
+        "objects": [
+        {
+                "object": "file-hasline",
+                "hasline": {
+                        "path": "${root}",
+                        "file": ".*\\.txt",
+                        "expression": ".*test.*"
+                }
+        }
+        ],
+
+        "tests": [
+        {
+                "test": "files-without-line",
+                "tags": [
+                        {
+                                "key": "testtag",
+                                "value": "tag1"
+                        },
+                        {
+                                "key": "another tag",
+                                "value": "Another tag with spaces"
+                        }
+                ],
+                "expectedresult": true,
+                "object": "file-hasline",
+                "exactmatch": {
+                        "value": "false"
+                }
+        }
+        ]
+}
+`
+
+func TestTagsPolicy(t *testing.T) {
+	genericTestExec(t, tagsPolicyDoc)
+}
