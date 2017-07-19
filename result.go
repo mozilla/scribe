@@ -106,7 +106,8 @@ func (r *TestResult) SingleLineResults() []string {
 func (r *TestResult) JSON() string {
 	buf, err := json.Marshal(r)
 	if err != nil {
-		fmt.Sprintf("JSON encoding error: %v", err)
+		// If we are unable to marshal the result just return an empty document
+		return "{}"
 	}
 	return string(buf)
 }
