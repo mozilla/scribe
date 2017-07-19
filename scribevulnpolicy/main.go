@@ -182,8 +182,8 @@ func generatePolicy(p string) error {
 		newtest.Object = objname
 		newtest.EVR.Value = x.fixedInVersion
 		newtest.EVR.Operation = "<"
-		newtest.TestID, err = generateTestId(x, platform)
 		newtest.If = append(newtest.If, reltestid)
+		newtest.TestID, err = generateTestId(x, platform)
 		if err != nil {
 			return err
 		}
