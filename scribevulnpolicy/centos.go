@@ -26,6 +26,42 @@ var centosReleases = []centosRelease{
 	{PLATFORM_CENTOS_6, "release 6", centos_expression, "^centos-release$"},
 }
 
+// The list of packages for this platform we will only consider the newest version for in the
+// generated policy
+var centosOnlyNewestPackages = []string{
+	"kernel",
+	"kernel-abi-whitelists",
+	"kernel-headers",
+	"kernel-devel",
+	"kernel-debug",
+	"kernel-debug-devel",
+	"kernel-debuginfo",
+	"kernel-debuginfo-common",
+	"kernel-doc",
+	"kernel-tools",
+	"kernel-tools-debuginfo",
+	"kernel-tools-libs",
+	"perf",
+	"perf-debuginfo",
+	"python-perf",
+	"python-perf-debuginfo",
+}
+
+// In some cases we only want to collect version information on the latest installed version
+// of a package to use for tests. For example, on CentOS we may have multiple versions of
+// "kernel" installed but we only want to test against the latest version so we don't get a
+// bunch of false positives.
+//
+// This function returns true if this is the case.
+func centosOnlyNewest(pkgname string) bool {
+	for _, x := range centosOnlyNewestPackages {
+		if x == pkgname {
+			return true
+		}
+	}
+	return false
+}
+
 // Adds a release test to scribe document doc. The release test is a dependency
 // for each other vuln check, and validates if a given package is vulnerable that the
 // platform is also what is expected (e.g., package X is vulnerable and operating system

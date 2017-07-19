@@ -31,11 +31,12 @@ type supportedPlatform struct {
 	clairNamespace   string
 	clairNamespaceId int // Populated upon query of the database
 	releaseTest      func(supportedPlatform, *scribe.Document) (string, error)
+	pkgNewest        func(string) bool
 }
 
 var supportedPlatforms = []supportedPlatform{
-	{PLATFORM_CENTOS_6, "centos6", "centos:6", 0, centosReleaseTest},
-	{PLATFORM_CENTOS_7, "centos7", "centos:7", 0, centosReleaseTest},
+	{PLATFORM_CENTOS_6, "centos6", "centos:6", 0, centosReleaseTest, centosOnlyNewest},
+	{PLATFORM_CENTOS_7, "centos7", "centos:7", 0, centosReleaseTest, centosOnlyNewest},
 }
 
 // Given a clair namespace, return the supportedPlatform entry for it if it is
@@ -175,6 +176,7 @@ func generatePolicy(p string) error {
 		if !found {
 			newobj.Object = objname
 			newobj.Package.Name = x.pkgName
+			newobj.Package.OnlyNewest = platform.pkgNewest(x.pkgName)
 			doc.Objects = append(doc.Objects, newobj)
 		}
 
