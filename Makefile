@@ -1,11 +1,8 @@
-PROJS = scribe scribecmd evrtest scribevulnpolicy
+PROJS = scribe scribecmd scribevulnpolicy
 GO = GO15VENDOREXPERIMENT=1 go
 GOLINT = golint
 
 all: $(PROJS) runtests
-
-evrtest:
-	$(GO) install github.com/mozilla/scribe/evrtest
 
 scribe:
 	$(GO) install github.com/mozilla/scribe
@@ -25,7 +22,7 @@ showcoverage: gotests
 	$(GO) tool cover -html=coverage.out
 
 scribetests: $(PROJS)
-	cd test && SCRIBECMD=$$(which scribecmd) EVRTESTCMD=$$(which evrtest) $(MAKE) runtests
+	cd test && SCRIBECMD=$$(which scribecmd) $(MAKE) runtests
 
 lint:
 	$(GOLINT) $(PROJECT)
