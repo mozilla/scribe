@@ -52,7 +52,7 @@ scribecmd supports other runtime options, see the usage output for details.
 scribe can be used to perform vulnerability scanning directly on the system using a suitable
 policy file. The library implements various criteria specifications such as
 EVR (epoch/version/release) testing that can be used to determine if a given package
-version if less than what is required.
+version is less than what is required.
 
 scribevulnpolicy is a policy generator that integrates with [clair](https://github.com/coreos/clair)
 for vulnerability data. This tool can be used to generate scribe vulnerability check
