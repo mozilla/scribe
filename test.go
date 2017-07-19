@@ -88,7 +88,7 @@ func (t *Test) validate(d *Document) error {
 		return fmt.Errorf("%v: no valid evaluation interface", t.TestID)
 	}
 	for _, x := range t.If {
-		ptr, err := d.getTest(x)
+		ptr, err := d.GetTest(x)
 		if err != nil {
 			return fmt.Errorf("%v: %v", t.TestID, err)
 		}
@@ -151,7 +151,7 @@ func (t *Test) runTest(d *Document) error {
 	// First, see if this test has any dependencies. If so, run those
 	// before we execute this one.
 	for _, x := range t.If {
-		dt, err := d.getTest(x)
+		dt, err := d.GetTest(x)
 		if err != nil {
 			t.err = err
 			return t.errorHandler(d)
@@ -207,7 +207,7 @@ func (t *Test) runTest(d *Document) error {
 		t.masterResult = true
 	}
 	for _, x := range t.If {
-		dt, err := d.getTest(x)
+		dt, err := d.GetTest(x)
 		if err != nil {
 			t.err = err
 			t.masterResult = false

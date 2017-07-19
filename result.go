@@ -43,7 +43,7 @@ type TestSubResult struct {
 // GetResults returns test results for a given test. Returns an error if for
 // some reason the results can not be returned.
 func GetResults(d *Document, name string) (TestResult, error) {
-	t, err := d.getTest(name)
+	t, err := d.GetTest(name)
 	if err != nil {
 		return TestResult{}, err
 	}

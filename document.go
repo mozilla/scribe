@@ -38,17 +38,6 @@ func (d *Document) Validate() error {
 	return nil
 }
 
-// GetTest returns a given test from the document, given the identifier
-func (d *Document) GetTest(identifier string) (ret Test, err error) {
-	for _, x := range d.Tests {
-		if x.TestID == identifier {
-			return x, nil
-		}
-	}
-	err = fmt.Errorf("test %v not found", identifier)
-	return
-}
-
 // GetTestIdentifiers returns the test identifiers for all tests present in
 // the document.
 func (d *Document) GetTestIdentifiers() []string {
@@ -110,7 +99,7 @@ func (d *Document) runTests() error {
 }
 
 // Return a pointer to a test instance of the test whose identifier matches
-func (d *Document) getTest(testid string) (*Test, error) {
+func (d *Document) GetTest(testid string) (*Test, error) {
 	for i := range d.Tests {
 		if d.Tests[i].TestID == testid {
 			return &d.Tests[i], nil
