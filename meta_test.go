@@ -146,3 +146,40 @@ var tagsPolicyDoc = `
 func TestTagsPolicy(t *testing.T) {
 	genericTestExec(t, tagsPolicyDoc)
 }
+
+var rawPolicyDoc = `
+{
+        "objects": [
+        {
+                "object": "rawobject",
+                "raw": {
+                        "identifiers": [
+                        {
+                                "identifier": "an identifier",
+                                "value": "VALUE"
+                        },
+                        {
+                                "identifier": "another identifier",
+                                "value": "TEST"
+                        }
+                        ]
+                }
+        }
+        ],
+
+        "tests": [
+        {
+                "test": "test0",
+                "expectedresult": true,
+                "object": "rawobject",
+                "regexp": {
+                        "value": "TEST"
+                }
+        }
+        ]
+}
+`
+
+func TestRawPolicy(t *testing.T) {
+	genericTestExec(t, rawPolicyDoc)
+}
