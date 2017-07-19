@@ -62,7 +62,7 @@ func LoadDocument(r io.Reader) (Document, error) {
 // execute all tests specified in the scribe document. Returns an error
 // if a fatal error occurs.
 //
-// Note that an error in an individual test does not neccessarily represent
+// Note that an error in an individual test does not necessarily represent
 // a fatal error condition. In these cases, the test itself will be marked
 // as having an error condition (stored in the Err field of the Test).
 func AnalyzeDocument(d Document) error {
