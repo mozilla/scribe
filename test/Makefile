@@ -1,4 +1,4 @@
-TESTDIRS = raw import-chain tags
+TESTDIRS = raw tags
 
 all:
 
