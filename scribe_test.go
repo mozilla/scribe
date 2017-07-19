@@ -10,6 +10,7 @@ package scribe_test
 import (
 	"fmt"
 	"strings"
+	"testing"
 
 	"github.com/mozilla/scribe"
 )
@@ -62,4 +63,74 @@ tests:
 	}
 
 	// Output: true
+}
+
+var resultsFormattingDoc = `
+{
+	"objects": [
+	{
+		"object": "raw",
+		"raw": {
+			"identifiers": [
+			{
+				"identifier": "test",
+				"value": "value"
+			}
+			]
+		}
+	}
+	],
+
+	"tests": [
+	{
+		"test": "test1",
+		"name": "a test",
+		"object": "raw",
+		"regexp": {
+			"value": "^va.*e$"
+		}
+	}
+	]
+}
+`
+
+func TestResultsFormatting(t *testing.T) {
+	rdr := strings.NewReader(resultsFormattingDoc)
+	scribe.Bootstrap()
+	scribe.TestHooks(true)
+	doc, err := scribe.LoadDocument(rdr)
+	if err != nil {
+		t.Fatalf("scribe.LoadDocument: %v", err)
+	}
+	err = scribe.AnalyzeDocument(doc)
+	if err != nil {
+		t.Fatalf("scribe.AnalyzeDocument: %v", err)
+	}
+	res, err := scribe.GetResults(&doc, "test1")
+	if err != nil {
+		t.Fatalf("scribe.GetResults: %v", err)
+	}
+
+	slr := res.SingleLineResults()
+	if len(slr) != 2 {
+		t.Fatalf("single line results incorrect line count")
+	}
+	if slr[0] != "master [true] name:\"a test\" id:\"test1\" hastrue:true error:\"\"" {
+		t.Fatalf("single line result master has incorrect format")
+	}
+	if slr[1] != "sub [true] name:\"a test\" id:\"test1\" identifier:\"test\"" {
+		t.Fatalf("single line result sub has incorrect format")
+	}
+
+	hrr_compare := `result for "a test" (test1)
+	master result: true
+	[true] identifier: "test"`
+	if res.String() != hrr_compare {
+		t.Fatalf("human readable result has incorrect format")
+	}
+
+	json_compare := `{"testid":"test1","name":"a test","description":"","iserror":false,"error":"","masterresult":true,"hastrueresults":true,"results":[{"result":true,"identifier":"test"}]}`
+	if res.JSON() != json_compare {
+		t.Fatalf("json result has incorrect format")
+	}
 }
