@@ -8,10 +8,13 @@
 package main
 
 import (
+	"crypto/md5"
 	"database/sql"
+	"encoding/json"
 	"flag"
 	"fmt"
 	_ "github.com/lib/pq"
+	"github.com/mozilla/scribe"
 	"os"
 )
 
@@ -27,11 +30,12 @@ type supportedPlatform struct {
 	name             string
 	clairNamespace   string
 	clairNamespaceId int // Populated upon query of the database
+	releaseTest      func(supportedPlatform, *scribe.Document) (string, error)
 }
 
 var supportedPlatforms = []supportedPlatform{
-	{PLATFORM_CENTOS_6, "centos6", "centos:6", 0},
-	{PLATFORM_CENTOS_7, "centos7", "centos:7", 0},
+	{PLATFORM_CENTOS_6, "centos6", "centos:6", 0, centosReleaseTest},
+	{PLATFORM_CENTOS_7, "centos7", "centos:7", 0, centosReleaseTest},
 }
 
 // Given a clair namespace, return the supportedPlatform entry for it if it is
@@ -47,19 +51,6 @@ func getPlatform(clairNamespace string) (ret supportedPlatform, err error) {
 	return
 }
 
-type Policy struct {
-	Vulnerabilities []Vulnerability `json:"vulnerabilities,omitempty"`
-}
-
-type Vulnerability struct {
-	OS       string   `json:"os,omitempty"`
-	Release  string   `json:"release,omitempty"`
-	Package  string   `json:"package,omitempty"`
-	Version  string   `json:"version,omitempty"`
-	ID       string   `json:"id,omitempty"` // Globally unique test identifier
-	Metadata Metadata `json:"metadata,omitempty"`
-}
-
 type vuln struct {
 	name           string
 	fixedInVersion string
@@ -69,13 +60,7 @@ type vuln struct {
 	description    string
 }
 
-type Metadata struct {
-	Description string   `json:"description"`
-	CVE         []string `json:"cve"`
-	CVSS        string   `json:"cvss"`
-	Category    string   `json:"category"`
-}
-
+// Describes global configuration
 type config struct {
 	Database struct {
 		DBName     string
@@ -122,8 +107,22 @@ func dbInit() (err error) {
 	return
 }
 
+// Generate a test identifier; this needs to be unique in the document. Here we
+// just use a few elements from the vulnerability and platform and return an MD5
+// digest.
+func generateTestId(v vuln, p supportedPlatform) (string, error) {
+	h := md5.New()
+	h.Write([]byte(v.name))
+	h.Write([]byte(p.name))
+	h.Write([]byte(v.pkgName))
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
 func generatePolicy(p string) error {
-	var platform supportedPlatform
+	var (
+		platform supportedPlatform
+		doc      scribe.Document
+	)
 	// First make sure this is a supported platform, and this will also get us the namespace ID
 	platforms, err := dbGetSupportedPlatforms()
 	if err != nil {
@@ -141,11 +140,63 @@ func generatePolicy(p string) error {
 		return fmt.Errorf("platform %v not supported for policy generation", p)
 	}
 
-	// Get all vulnerabilities for the platform from the database
-	_, err = dbVulnsForPlatform(platform)
+	// Add the release test which will be used as a dependency on all checks
+	// in the final test document
+	reltestid, err := platform.releaseTest(platform, &doc)
 	if err != nil {
 		return err
 	}
+
+	// Get all vulnerabilities for the platform from the database
+	vulns, err := dbVulnsForPlatform(platform)
+	if err != nil {
+		return err
+	}
+
+	// Add a test for each vulnerability
+	for _, x := range vulns {
+		var (
+			newtest scribe.Test
+			newobj  scribe.Object
+			objname string
+		)
+
+		// See if we already have an object in the document that references
+		// the package we want to lookup, if so we don't need to add a second
+		// one
+		found := false
+		objname = fmt.Sprintf("obj-package-%v", x.pkgName)
+		for _, y := range doc.Objects {
+			if y.Package.Name == x.pkgName {
+				found = true
+				break
+			}
+		}
+		if !found {
+			newobj.Object = objname
+			newobj.Package.Name = x.pkgName
+			doc.Objects = append(doc.Objects, newobj)
+		}
+
+		newtest.TestName = x.name
+		newtest.Object = objname
+		newtest.EVR.Value = x.fixedInVersion
+		newtest.EVR.Operation = "<"
+		newtest.TestID, err = generateTestId(x, platform)
+		newtest.If = append(newtest.If, reltestid)
+		if err != nil {
+			return err
+		}
+		doc.Tests = append(doc.Tests, newtest)
+	}
+
+	// Finally, display the policy on stdout
+	outbuf, err := json.MarshalIndent(doc, "", "    ")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%v\n", string(outbuf))
+
 	return nil
 }
 

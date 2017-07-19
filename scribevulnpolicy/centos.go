@@ -12,69 +12,59 @@ import (
 	"github.com/mozilla/scribe"
 )
 
-type RedHatRelease struct {
-	Name    string // Release identifier
-	Version string // Release version
+type centosRelease struct {
+	identifier   int
+	versionMatch string
+	expression   string
+	filematch    string
 }
 
-var RedHatReleases = []RedHatRelease{
-	{"rhel7", "release 7"},
-	{"rhel6", "release 6"},
-	{"rhel5", "release 5"},
-	{"centos7", "release 7"},
-	{"centos6", "release 6"},
-	{"centos5", "release 5"},
-}
-
-const rhl_expression = ".*Red Hat.*(release \\d+)\\..*"
 const centos_expression = ".*CentOS.*(release \\d+)\\..*"
 
-func redhatGetReleaseTest(doc *scribe.Document, vuln Vulnerability) (string, error) {
-	reltestname := fmt.Sprintf("test-release-%v-%v", vuln.OS, vuln.Release)
-	relobjname := "obj-release-redhatrelease"
-	// See if we have a release definition for this already, if not
-	// add it
-	for _, x := range doc.Tests {
-		if x.TestID == reltestname {
-			return reltestname, nil
-		}
-	}
+var centosReleases = []centosRelease{
+	{PLATFORM_CENTOS_7, "release 7", centos_expression, "^centos-release$"},
+	{PLATFORM_CENTOS_6, "release 6", centos_expression, "^centos-release$"},
+}
 
+// Adds a release test to scribe document doc. The release test is a dependency
+// for each other vuln check, and validates if a given package is vulnerable that the
+// platform is also what is expected (e.g., package X is vulnerable and operating system
+// is also X.
+func centosReleaseTest(platform supportedPlatform, doc *scribe.Document) (tid string, err error) {
+	var (
+		test    scribe.Test
+		obj     scribe.Object
+		release centosRelease
+	)
+
+	// Set the name and referenced object for the release test
+	test.TestID = fmt.Sprintf("test-release-%v", platform.name)
+	test.Object = "test-release"
+
+	// Set our match value on the test to the release string
 	found := false
-	for _, x := range doc.Objects {
-		if x.Object == relobjname {
+	for _, x := range centosReleases {
+		if x.identifier == platform.platformId {
 			found = true
+			release = x
 			break
 		}
 	}
 	if !found {
-		obj := scribe.Object{}
-		obj.Object = relobjname
-		obj.FileContent.Path = "/etc"
-		obj.FileContent.File = "^redhat-release$"
-		if vuln.OS == "redhat" {
-			obj.FileContent.Expression = rhl_expression
-		} else {
-			obj.FileContent.Expression = centos_expression
-		}
-		doc.Objects = append(doc.Objects, obj)
+		err = fmt.Errorf("unable to locate release version match for %v", platform.name)
+		return
 	}
+	test.EMatch.Value = release.versionMatch
 
-	mvalue := ""
-	for _, x := range RedHatReleases {
-		if x.Name == vuln.Release {
-			mvalue = x.Version
-			break
-		}
-	}
-	if mvalue == "" {
-		return "", fmt.Errorf("unknown redhat/centos release %v", vuln.Release)
-	}
-	test := scribe.Test{}
-	test.TestID = reltestname
-	test.Object = relobjname
-	test.EMatch.Value = mvalue
+	// Add our object, which will be the file we will match against to determine
+	// if the platform is in scope
+	obj.Object = test.Object
+	obj.FileContent.Path = "/etc"
+	obj.FileContent.File = release.filematch
+	obj.FileContent.Expression = release.expression
+
 	doc.Tests = append(doc.Tests, test)
-
-	return test.TestID, nil
+	doc.Objects = append(doc.Objects, obj)
+	tid = test.TestID
+	return
 }
