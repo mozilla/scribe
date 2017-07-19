@@ -1,4 +1,4 @@
-TESTDIRS = concat raw import-chain tags
+TESTDIRS = raw import-chain tags
 
 all:
 
