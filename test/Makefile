@@ -1,4 +1,4 @@
-TESTDIRS = filecontent filename concat raw import-chain hasline tags
+TESTDIRS = filecontent filename concat raw import-chain tags
 
 all:
 
