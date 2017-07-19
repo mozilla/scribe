@@ -9,7 +9,6 @@ package scribe_test
 
 import (
 	"github.com/mozilla/scribe"
-	"strings"
 	"testing"
 )
 
@@ -139,42 +138,7 @@ var packagePolicyDoc = `
 `
 
 func TestPackagePolicy(t *testing.T) {
-	rdr := strings.NewReader(packagePolicyDoc)
-	scribe.Bootstrap()
-	scribe.TestHooks(true)
-	doc, err := scribe.LoadDocument(rdr)
-	if err != nil {
-		t.Fatalf("scribe.LoadDocument: %v", err)
-	}
-	err = scribe.AnalyzeDocument(doc)
-	if err != nil {
-		t.Fatalf("scribe.AnalyzeDocument: %v", err)
-	}
-	// Get results for each test and make sure the result matches what
-	// expectedresult is set to
-	testids := doc.GetTestIdentifiers()
-	for _, x := range testids {
-		stest, err := doc.GetTest(x)
-		if err != nil {
-			t.Fatalf("Document.GetTest: %v", err)
-		}
-		sres, err := scribe.GetResults(&doc, x)
-		if err != nil {
-			t.Fatalf("scribe.GetResults: %v", err)
-		}
-		if stest.ExpectError {
-			if !sres.IsError {
-				t.Fatalf("test %v should have been an error", x)
-			}
-		} else {
-			if sres.IsError {
-				t.Fatalf("test %v resulted in an error", x)
-			}
-			if sres.MasterResult != stest.ExpectedResult {
-				t.Fatalf("result incorrect for test %v", x)
-			}
-		}
-	}
+	genericTestExec(t, packagePolicyDoc)
 }
 
 func TestPackageQuery(t *testing.T) {
