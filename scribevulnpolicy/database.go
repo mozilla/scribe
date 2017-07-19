@@ -25,7 +25,7 @@ func dbGetSupportedPlatforms() (ret []supportedPlatform, err error) {
 		}
 		platform, err = getPlatform(nsname)
 		if err == nil {
-			platform.clairNamespaceId = nsid
+			platform.clairNamespaceID = nsid
 			ret = append(ret, platform)
 		}
 	}
@@ -40,7 +40,7 @@ func dbVulnsForPlatform(platform supportedPlatform) (ret []vuln, err error) {
 		JOIN vulnerability_fixedin_feature vff ON (vff.feature_id = f.id)
 		JOIN vulnerability v ON (v.id = vff.vulnerability_id)
 		WHERE f.namespace_id = $1
-		ORDER BY f.name`, platform.clairNamespaceId)
+		ORDER BY f.name`, platform.clairNamespaceID)
 	if err != nil {
 		return
 	}

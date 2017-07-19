@@ -19,24 +19,24 @@ import (
 )
 
 const (
-	PLATFORM_CENTOS_6 = iota
-	PLATFORM_CENTOS_7
+	platformCentos6 = iota
+	platformCentos7
 )
 
 // Our list of platforms we will support policy generation for, this maps the
 // platform constants to clair namespace identifiers
 type supportedPlatform struct {
-	platformId       int
+	platformID       int
 	name             string
 	clairNamespace   string
-	clairNamespaceId int // Populated upon query of the database
+	clairNamespaceID int // Populated upon query of the database
 	releaseTest      func(supportedPlatform, *scribe.Document) (string, error)
 	pkgNewest        func(string) bool
 }
 
 var supportedPlatforms = []supportedPlatform{
-	{PLATFORM_CENTOS_6, "centos6", "centos:6", 0, centosReleaseTest, centosOnlyNewest},
-	{PLATFORM_CENTOS_7, "centos7", "centos:7", 0, centosReleaseTest, centosOnlyNewest},
+	{platformCentos6, "centos6", "centos:6", 0, centosReleaseTest, centosOnlyNewest},
+	{platformCentos7, "centos7", "centos:7", 0, centosReleaseTest, centosOnlyNewest},
 }
 
 // Given a clair namespace, return the supportedPlatform entry for it if it is
@@ -111,7 +111,7 @@ func dbInit() (err error) {
 // Generate a test identifier; this needs to be unique in the document. Here we
 // just use a few elements from the vulnerability and platform and return an MD5
 // digest.
-func generateTestId(v vuln, p supportedPlatform) (string, error) {
+func generateTestID(v vuln, p supportedPlatform) (string, error) {
 	h := md5.New()
 	h.Write([]byte(v.name))
 	h.Write([]byte(p.name))
@@ -185,7 +185,7 @@ func generatePolicy(p string) error {
 		newtest.EVR.Value = x.fixedInVersion
 		newtest.EVR.Operation = "<"
 		newtest.If = append(newtest.If, reltestid)
-		newtest.TestID, err = generateTestId(x, platform)
+		newtest.TestID, err = generateTestID(x, platform)
 		if err != nil {
 			return err
 		}

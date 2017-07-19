@@ -19,11 +19,11 @@ type centosRelease struct {
 	filematch    string
 }
 
-const centos_expression = ".*CentOS.*(release \\d+)\\..*"
+const centosExpression = ".*CentOS.*(release \\d+)\\..*"
 
 var centosReleases = []centosRelease{
-	{PLATFORM_CENTOS_7, "release 7", centos_expression, "^centos-release$"},
-	{PLATFORM_CENTOS_6, "release 6", centos_expression, "^centos-release$"},
+	{platformCentos7, "release 7", centosExpression, "^centos-release$"},
+	{platformCentos6, "release 6", centosExpression, "^centos-release$"},
 }
 
 // The list of packages for this platform we will only consider the newest version for in the
@@ -80,7 +80,7 @@ func centosReleaseTest(platform supportedPlatform, doc *scribe.Document) (tid st
 	// Set our match value on the test to the release string
 	found := false
 	for _, x := range centosReleases {
-		if x.identifier == platform.platformId {
+		if x.identifier == platform.platformID {
 			found = true
 			release = x
 			break
