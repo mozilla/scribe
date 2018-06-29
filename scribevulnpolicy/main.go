@@ -9,7 +9,6 @@ package main
 
 import (
 	"crypto/md5"
-	"database/sql"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -18,25 +17,18 @@ import (
 	"os"
 )
 
-const (
-	platformCentos6 = iota
-	platformCentos7
-)
-
 // Our list of platforms we will support policy generation for, this maps the
 // platform constants to clair namespace identifiers
 type supportedPlatform struct {
-	platformID       int
-	name             string
-	clairNamespace   string
-	clairNamespaceID int // Populated upon query of the database
-	releaseTest      func(supportedPlatform, *scribe.Document) (string, error)
-	pkgNewest        func(string) bool
+	name           string
+	clairNamespace string
+	releaseTest    func(supportedPlatform, *scribe.Document) (string, error)
+	pkgNewest      func(string) bool
 }
 
 var supportedPlatforms = []supportedPlatform{
-	{platformCentos6, "centos6", "centos:6", 0, centosReleaseTest, centosOnlyNewest},
-	{platformCentos7, "centos7", "centos:7", 0, centosReleaseTest, centosOnlyNewest},
+	{"centos6", "centos:6", centosReleaseTest, centosOnlyNewest},
+	{"centos7", "centos:7", centosReleaseTest, centosOnlyNewest},
 }
 
 // Given a clair namespace, return the supportedPlatform entry for it if it is
@@ -52,70 +44,23 @@ func getPlatform(clairNamespace string) (ret supportedPlatform, err error) {
 	return
 }
 
-type vuln struct {
-	name           string
-	fixedInVersion string
-	pkgName        string
-	severity       string
-	link           string
-	description    string
-}
-
-// Describes global configuration
-type config struct {
-	Database struct {
-		DBName     string
-		DBHost     string
-		DBUser     string
-		DBPassword string
-		DBPort     string
-	}
-}
-
-var dbconn *sql.DB
-var cfg config
-
-// Set any configuration based on environment variables
-func configFromEnv() error {
-	envvar := os.Getenv("PGHOST")
-	if envvar != "" {
-		cfg.Database.DBHost = envvar
-	}
-	envvar = os.Getenv("PGUSER")
-	if envvar != "" {
-		cfg.Database.DBUser = envvar
-	}
-	envvar = os.Getenv("PGPASSWORD")
-	if envvar != "" {
-		cfg.Database.DBPassword = envvar
-	}
-	envvar = os.Getenv("PGDATABASE")
-	if envvar != "" {
-		cfg.Database.DBName = envvar
-	}
-	envvar = os.Getenv("PGPORT")
-	if envvar != "" {
-		cfg.Database.DBPort = envvar
-	}
-	return nil
-}
-
-func dbInit() (err error) {
-	connstr := fmt.Sprintf("dbname=%v host=%v user=%v password=%v port=%v sslmode=disable",
-		cfg.Database.DBName, cfg.Database.DBHost, cfg.Database.DBUser,
-		cfg.Database.DBPassword, cfg.Database.DBPort)
-	dbconn, err = sql.Open("postgres", connstr)
-	return
+type VulnInfo struct {
+	Package        string `json:"package"`
+	Vulnerability  string `json:"vulnerability"`
+	Severity       string `json:"severity"`
+	Description    string `json:"description"`
+	FixedInVersion string `json:"fixedInVersion"`
+	InfoLink       string `json:"link"`
 }
 
 // Generate a test identifier; this needs to be unique in the document. Here we
 // just use a few elements from the vulnerability and platform and return an MD5
 // digest.
-func generateTestID(v vuln, p supportedPlatform) (string, error) {
+func generateTestID(v VulnInfo, p supportedPlatform) (string, error) {
 	h := md5.New()
-	h.Write([]byte(v.name))
+	h.Write([]byte(v.Vulnerability))
 	h.Write([]byte(p.name))
-	h.Write([]byte(v.pkgName))
+	h.Write([]byte(v.Package))
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
@@ -125,15 +70,11 @@ func generatePolicy(p string) error {
 		doc      scribe.Document
 	)
 	// First make sure this is a supported platform, and this will also get us the namespace ID
-	platforms, err := dbGetSupportedPlatforms()
-	if err != nil {
-		return err
-	}
 	supported := false
-	for _, x := range platforms {
-		if x.name == p {
+	for _, pform := range supportedPlatforms {
+		if pform.name == p {
+			platform = pform
 			supported = true
-			platform = x
 			break
 		}
 	}
@@ -148,8 +89,8 @@ func generatePolicy(p string) error {
 		return err
 	}
 
-	// Get all vulnerabilities for the platform from the database
-	vulns, err := dbVulnsForPlatform(platform)
+	// Get all vulnerabilities for the platform from the Clair API
+	vulns, err := vulnsInNamespace(platform.clairNamespace)
 	if err != nil {
 		return err
 	}
@@ -166,23 +107,23 @@ func generatePolicy(p string) error {
 		// the package we want to lookup, if so we don't need to add a second
 		// one
 		found := false
-		objname = fmt.Sprintf("obj-package-%v", x.pkgName)
+		objname = fmt.Sprintf("obj-package-%v", x.Package)
 		for _, y := range doc.Objects {
-			if y.Package.Name == x.pkgName {
+			if y.Package.Name == x.Package {
 				found = true
 				break
 			}
 		}
 		if !found {
 			newobj.Object = objname
-			newobj.Package.Name = x.pkgName
-			newobj.Package.OnlyNewest = platform.pkgNewest(x.pkgName)
+			newobj.Package.Name = x.Package
+			newobj.Package.OnlyNewest = platform.pkgNewest(x.Package)
 			doc.Objects = append(doc.Objects, newobj)
 		}
 
-		newtest.TestName = x.name
+		newtest.TestName = x.Vulnerability
 		newtest.Object = objname
-		newtest.EVR.Value = x.fixedInVersion
+		newtest.EVR.Value = x.FixedInVersion
 		newtest.EVR.Operation = "<"
 		newtest.If = append(newtest.If, reltestid)
 		newtest.TestID, err = generateTestID(x, platform)
@@ -190,11 +131,11 @@ func generatePolicy(p string) error {
 			return err
 		}
 		// Add some tags to the test we can use when we parse results
-		pkgtag := scribe.TestTag{Key: "package", Value: x.pkgName}
+		pkgtag := scribe.TestTag{Key: "package", Value: x.Package}
 		newtest.Tags = append(newtest.Tags, pkgtag)
-		sevtag := scribe.TestTag{Key: "severity", Value: x.severity}
+		sevtag := scribe.TestTag{Key: "severity", Value: x.Severity}
 		newtest.Tags = append(newtest.Tags, sevtag)
-		linktag := scribe.TestTag{Key: "link", Value: x.link}
+		linktag := scribe.TestTag{Key: "link", Value: x.InfoLink}
 		newtest.Tags = append(newtest.Tags, linktag)
 		doc.Tests = append(doc.Tests, newtest)
 	}
@@ -221,27 +162,11 @@ func main() {
 		genPlatform = flag.Args()[0]
 	}
 
-	err = configFromEnv()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error reading config from environment: %v\n", err)
-		os.Exit(1)
-	}
-	err = dbInit()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error initializing database: %v\n", err)
-		os.Exit(1)
-	}
-
 	if showVersions {
-		platforms, err := dbGetSupportedPlatforms()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "error retrieving platforms: %v\n", err)
-			os.Exit(1)
+		for _, platform := range supportedPlatforms {
+			fmt.Println(platform.name)
 		}
-		for _, x := range platforms {
-			fmt.Printf("%v\n", x.name)
-		}
-		os.Exit(0)
+		return
 	}
 
 	if genPlatform == "" {
