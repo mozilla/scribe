@@ -20,38 +20,49 @@ const (
 	clairGetVulnsEndptFmt  string = "http://127.0.0.1:6060/v1/namespaces/%s/vulnerabilities/%s?fixedIn"
 )
 
-type ShortVulnResponse struct {
-	Vulns    []ShortVuln `json:"Vulnerabilities"`
+// shortVulnResponse contains the response data we expect from a request for a
+// list of vulnerabilities for a namespace.
+type shortVulnResponse struct {
+	Vulns    []shortVuln `json:"Vulnerabilities"`
 	Error    *string     `json:"Error"`
 	NextPage string      `json:"NextPage"`
 }
 
-type LongVulnResponse struct {
-	Vuln LongVuln `json:"Vulnerability"`
+// longVulnResponse contains response data we expect from a request for more
+// detailed information about a specific vulnerability.
+type longVulnResponse struct {
+	Vuln longVuln `json:"Vulnerability"`
 }
 
-type ShortVuln struct {
-	Name     string `json:"Name"`
-	Link     string `json:"Link"`
-	Severity string `json:"Severity"`
+// shortVuln contains only the information we need about vulnerabilities
+// retrieved when we request a list of vulns for a namespace.
+type shortVuln struct {
+	Name string `json:"Name"`
 }
 
-type LongVuln struct {
+// longVuln contains the information we need about specific vulnerabilities.
+type longVuln struct {
 	Name        string `json:"Name"`
 	Link        string `json:"Link"`
 	Severity    string `json:"Severity"`
 	Description string `json:"Description"`
-	FixedIn     []Fix  `json:"FixedIn"`
+	FixedIn     []fix  `json:"FixedIn"`
 }
 
-type Fix struct {
+// fix contains information about what version of a piece of software fixed a
+// particular vulnerability.
+type fix struct {
 	Name    string `json:"Name"`
 	Version string `json:"Version"`
 }
 
-func listVulnsForNamespace(namespace string) ([]ShortVuln, error) {
-	respData := ShortVulnResponse{}
-	vulns := []ShortVuln{}
+func listVulnsForNamespace(namespace string) ([]shortVuln, error) {
+	respData := shortVulnResponse{}
+	vulns := []shortVuln{}
+
+	// After we get a first response from Clair, we'll have the first
+	// "NextPage" value, which we can use to page through results if
+	// needed.  Once we *don't* get a "NextPage", we know we're done.
 	page := ""
 
 	for {
@@ -61,18 +72,18 @@ func listVulnsForNamespace(namespace string) ([]ShortVuln, error) {
 		}
 		response, err := http.Get(url)
 		if err != nil {
-			return []ShortVuln{}, err
+			return []shortVuln{}, err
 		}
 
 		decoder := json.NewDecoder(response.Body)
 		defer response.Body.Close()
 		decodeErr := decoder.Decode(&respData)
 		if decodeErr != nil {
-			return []ShortVuln{}, decodeErr
+			return []shortVuln{}, decodeErr
 		}
 
 		if respData.Error != nil {
-			return []ShortVuln{}, errors.New(*respData.Error)
+			return []shortVuln{}, errors.New(*respData.Error)
 		}
 
 		if respData.NextPage == "" {
@@ -85,27 +96,29 @@ func listVulnsForNamespace(namespace string) ([]ShortVuln, error) {
 	return respData.Vulns, nil
 }
 
-func describeVuln(namespace string, vuln ShortVuln) (LongVuln, error) {
-	respData := LongVulnResponse{}
+func describeVuln(namespace string, vuln shortVuln) (longVuln, error) {
+	respData := longVulnResponse{}
 
 	vulnName := strings.Split(vuln.Name, " ")[0]
 	url := fmt.Sprintf(clairGetVulnsEndptFmt, namespace, vulnName)
 	response, err := http.Get(url)
 	if err != nil {
-		return LongVuln{}, err
+		return longVuln{}, err
 	}
 
 	decoder := json.NewDecoder(response.Body)
 	defer response.Body.Close()
 	decodeErr := decoder.Decode(&respData)
 	if decodeErr != nil {
-		return LongVuln{}, decodeErr
+		return longVuln{}, decodeErr
 	}
 
 	return respData.Vuln, nil
 }
 
-func vulnsInNamespace(namespace string) ([]VulnInfo, error) {
+// VulnsInNamespace collects a list of vulnerabilities affecting a particular
+// namespace.
+func VulnsInNamespace(namespace string) ([]VulnInfo, error) {
 	vulns := []VulnInfo{}
 
 	allVulns, err := listVulnsForNamespace(namespace)

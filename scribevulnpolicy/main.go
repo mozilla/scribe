@@ -90,7 +90,7 @@ func generatePolicy(p string) error {
 	}
 
 	// Get all vulnerabilities for the platform from the Clair API
-	vulns, err := vulnsInNamespace(platform.clairNamespace)
+	vulns, err := VulnsInNamespace(platform.clairNamespace)
 	if err != nil {
 		return err
 	}
