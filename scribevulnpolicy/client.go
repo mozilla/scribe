@@ -76,8 +76,8 @@ func listVulnsForNamespace(namespace string) ([]shortVuln, error) {
 		}
 
 		decoder := json.NewDecoder(response.Body)
-		defer response.Body.Close()
 		decodeErr := decoder.Decode(&respData)
+		response.Body.Close()
 		if decodeErr != nil {
 			return []shortVuln{}, decodeErr
 		}
