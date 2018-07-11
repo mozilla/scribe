@@ -20,12 +20,17 @@ const (
 	clairGetVulnsEndptFmt  string = "http://127.0.0.1:6060/v1/namespaces/%s/vulnerabilities/%s?fixedIn"
 )
 
+// errorMessage contains error data that the Clair API may return.
+type errorMessage struct {
+	Message string `json:"Message"`
+}
+
 // shortVulnResponse contains the response data we expect from a request for a
 // list of vulnerabilities for a namespace.
 type shortVulnResponse struct {
-	Vulns    []shortVuln `json:"Vulnerabilities"`
-	Error    *string     `json:"Error"`
-	NextPage string      `json:"NextPage"`
+	Vulns    []shortVuln   `json:"Vulnerabilities"`
+	Error    *errorMessage `json:"Error"`
+	NextPage string        `json:"NextPage"`
 }
 
 // longVulnResponse contains response data we expect from a request for more
@@ -83,7 +88,7 @@ func listVulnsForNamespace(namespace string) ([]shortVuln, error) {
 		}
 
 		if respData.Error != nil {
-			return []shortVuln{}, errors.New(*respData.Error)
+			return []shortVuln{}, errors.New(respData.Error.Message)
 		}
 
 		if respData.NextPage == "" {
